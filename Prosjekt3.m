@@ -49,17 +49,36 @@ while (fs(j,1)<1) || (fs(j,2)<1)
     j=j+1;
 end
 
+%-----------------------Eutectic fraction------------------------------
+fe_eq=@(TL) 1-(1/(1-c.k))*((TL-c.Te)/(c.Tf-c.Te));
+%----------------------------------------------------------------------
 
 figure
 subplot(2,1,1)
+
 for i=1:length(TL)
     plot(T(:,i)-273,fs(:,i))
     hold on
 end
+%Creating the perfect plot------------------------------------------
 axis([0 c.Tf 0 1]);
 set(gca,'xdir','reverse');
-title('Eq. lever rule solid fraction')
-legend('1wt%Si','8wt%Si')
+title('Solid fraction: Lever rule vs Scheil')
+fe1=fe_eq(TL(1));
+fe2=fe_eq(TL(2));
+if fe1<0
+    fe1=0;
+elseif fe2<0
+    fe2=0;
+end
+strstart1=['Lever rule, ',num2str(C0_1)];
+strend1=['wt%Si f_e = ', num2str(fe1,'%.3f')];
+strstart2=['Lever rule, ',num2str(C0_2)];
+strend2=['wt%Si f_e = ', num2str(fe2,'%.3f')];
+str1=strcat(strstart1,strend1);
+str2=strcat(strstart2,strend2);
+legend(str1,str2,'Location','southeast')
+%---------------------------------------------------------------------
 grid
 xlabel('T(°C)')
 ylabel('Solid fraction, f');
@@ -71,10 +90,8 @@ for i=1:length(TL)
 end
 axis([0 c.Tf -inf inf]);
 set(gca,'xdir','reverse');
-title('Eq. lever rule solid fraction')
-legend('1wt%Si','8wt%Si')
+title('Solid fraction: Lever rule vs Scheil')
 grid
 xlabel('T(°C)')
 ylabel('Change in solid fraction, df/dT');
 
-%fs_star=@(T,TL) 1-((1/(c.Tf-TL))^())*()^()

@@ -24,46 +24,78 @@ TL(1)=c.Tf -c.m*C0_1;
 TL(2)=c.Tf -c.m*C0_2;
 %----------------------------------------------------------------------
 
-%-------------------Lever rule derivated fraction----------------------
+%--------------Lever rule equilibrium fraction solid ------------------
 fs_eq=@(T,TL) (1/(1-c.k))*((TL-T)/(c.Tf-T));
-dfs_eq=@(T,TL) (1/(1-c.k))*((c.Tf-TL)/(c.Tf-T)^2);
+dfs_eq=@(T,TL) (1/(c.k-1))*((TL-c.Tf)/(c.Tf-T)^2);
 %----------------------------------------------------------------------
 
 %c)
-dT=0.5; 
-T(1)=TL(1);
-for i=1:length(TL)
-    fs(1,1)=0;
-    dfs(1,1)=dfs_eq(T(1),TL(1));
-    fs(1,2)=0;
-    dfs(1,2)=dfs_eq(T(1),TL(2));
-    j=1;
-    while (fs(j,1)<1) || (fs(j,2)<1)
-        T(j+1)=T(j)-dT;
-        fs(j+1,1)=fs_eq(T(j+1),TL(1));
-        dfs(j+1,1)=dfs_eq(T(j+1),TL(1));
-        fs(j+1,2)=fs_eq(T(j+1),TL(2));
-        dfs(1,2)=dfs_eq(T(j+1),TL(2));
-        j=j+1;
-    end
+dT=0.5; %Temperature step
+%initial values
+T(1,1)=TL(1);
+T(1,2)=TL(2);
+fs(1,1)=0; 
+dfs(1,1)=0; %df/dT
+fs(1,2)=0;
+dfs(1,2)=0;
+j=1;
+while (fs(j,1)<1) || (fs(j,2)<1)
+    T(j+1,1)=T(j,1)-dT;
+    T(j+1,2)=T(j,2)-dT;
+    fs(j+1,1)=fs_eq(T(j+1,1),TL(1));
+    dfs(j+1,1)=dfs_eq(T(j+1,1),TL(1));
+    fs(j+1,2)=fs_eq(T(j+1,2),TL(2));
+    dfs(j+1,2)=dfs_eq(T(j+1,2),TL(2));
+    j=j+1;
 end
 
+%-----------------------Eutectic fraction------------------------------
+fe_eq=@(TL) 1-(1/(1-c.k))*((TL-c.Te)/(c.Tf-c.Te));
+%----------------------------------------------------------------------
+
 figure
-subplot(1,2,2)
+subplot(2,1,1)
+
 for i=1:length(TL)
-    plot(T-273,dfs(:,i))
+    plot(T(:,i)-273,fs(:,i))
     hold on
 end
+%Creating the perfect plot------------------------------------------
 axis([0 c.Tf 0 1]);
+set(gca,'xdir','reverse');
+title('Eq. lever rule solid fraction')
+fe1=fe_eq(TL(1));
+fe2=fe_eq(TL(2));
+if fe1<0
+    fe1=0;
+elseif fe2<0
+    fe2=0;
+end
+fe1=num2str(fe1,'%.3f');
+fe2=num2str(fe2,'%.3f');
+strstart1=['Eq. lever rule, ',num2str(C0_1)];
+strend1=['wt%Si f_e = ', fe1];
+strstart2=['Eq. lever rule, ',num2str(C0_2)];
+strend2=['wt%Si f_e = ', fe2];
+str1=strcat(strstart1,strend1);
+str2=strcat(strstart2,strend2);
+legend(str1,str2,'Location','southeast')
+%---------------------------------------------------------------------
+grid
+xlabel('T(°C)')
+ylabel('Solid fraction, f');
+
+subplot(2,1,2)
+for i=1:length(TL)
+    plot(T(:,i)-273,dfs(:,i))
+    hold on
+end
+axis([0 c.Tf -inf inf]);
 set(gca,'xdir','reverse');
 title('Eq. lever rule solid fraction')
 legend('1wt%Si','8wt%Si')
 grid
 xlabel('T(°C)')
-ylabel('Solid fraction, f');
-subplot(1,2,1)
-for i=1:length(TL)
-    plot(T-273,fs(:,i))
-    hold on
-end
+ylabel('Change in solid fraction, df/dT');
+
 %fs_star=@(T,TL) 1-((1/(c.Tf-TL))^())*()^()
