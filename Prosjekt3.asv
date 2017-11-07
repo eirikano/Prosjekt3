@@ -1,4 +1,4 @@
-%Prosjekt 3 - Eirik Andre Nordbø, Tobias Mohn Werner
+%Prosjekt 3 - Eirik Andre NordbÃ¸, Tobias Mohn Werner
 %
 
 clear all
@@ -54,16 +54,34 @@ for i=1:length(TL)
     plot(T-273,dfs(:,i))
     hold on
 end
+
 axis([0 c.Tf 0 1]);
 set(gca,'xdir','reverse');
 title('Eq. lever rule solid fraction')
 legend('1wt%Si','8wt%Si')
 grid
-xlabel('T(°C)')
+xlabel('T(Â°C)')
 ylabel('Solid fraction, f');
+
 subplot(1,2,1)
 for i=1:length(TL)
     plot(T-273,fs(:,i))
     hold on
 end
+
 %fs_star=@(T,TL) 1-((1/(c.Tf-TL))^())*()^()
+
+
+% oppgave 1d
+fs_star_eq=@(T,TL) 1-((c.Tf-T)/(c.Tf-TL))^(1/(k-1))
+for i=1:length(TL)
+    fs_star(1,2)=0;
+    fs_star(1,1)=fs_star_eq(T(i),TL(1))
+    j=1;
+    while (fs(j,1)<1) || (fs(j,2)<1)
+        T(j+1)=T(j)-dT;
+        fs_star(1,1)=fs_star_eq(T(i),TL(1))
+        fs(j+1,1)=fs_eq(T(j),TL(1));
+        fs(j+1,2)=fs_eq(T(j),TL(2));
+        j=j+1;
+    end

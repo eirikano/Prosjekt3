@@ -80,4 +80,18 @@ ylabel('Change in solid fraction, df/dT');
 %fs_star=@(T,TL) 1-((1/(c.Tf-TL))^())*()^()
 
 
-%testtest
+% oppgave 1d
+fs_star_eq=@(T,TL) 1-((c.Tf-T)/(c.Tf-TL))^(1/(c.k-1))
+for i=1:length(TL)
+    fs_star(1,2)=0;
+    fs_star(1,1)=0;
+    j=1;
+    while (fs_star(j,1)<1) || (fs_star(j,2)<1)
+        T(j+1)=T(j)-dT;
+        fs_star(j+1,1)=fs_star_eq(T(j),TL(1))
+        fs_star(j+1,2)=fs_star_eq(T(j),TL(2));
+        j=j+1;
+    end
+end
+
+
