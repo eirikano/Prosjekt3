@@ -1,4 +1,4 @@
-%Prosjekt 3 - Eirik Andre Nordbø, Tobias Mohn Werner
+%Prosjekt 3 - Eirik Andre NordbÃ¸, Tobias Mohn Werner
 %
 
 clear all
@@ -80,7 +80,7 @@ str2=strcat(strstart2,strend2);
 legend(str1,str2,'Location','southeast')
 %---------------------------------------------------------------------
 grid
-xlabel('T(°C)')
+xlabel('T(Â°C)')
 ylabel('Solid fraction, f');
 
 subplot(2,1,2)
@@ -92,6 +92,20 @@ axis([0 c.Tf -inf inf]);
 set(gca,'xdir','reverse');
 title('Solid fraction: Lever rule vs Scheil')
 grid
-xlabel('T(°C)')
+xlabel('T(Â°C)')
 ylabel('Change in solid fraction, df/dT');
 
+
+% oppgave 1d
+fs_star_eq=@(T,TL) 1-((c.Tf-T)/(c.Tf-TL))^(1/(c.k-1))
+for i=1:length(TL)
+    fs_star(1,2)=0;
+    fs_star(1,1)=0;
+    j=1;
+    while (fs_star(j,1)<1) || (fs_star(j,2)<1)
+        T(j+1)=T(j)-dT;
+        fs_star(j+1,1)=fs_star_eq(T(j),TL(1))
+        fs_star(j+1,2)=fs_star_eq(T(j),TL(2));
+        j=j+1;
+    end
+end
