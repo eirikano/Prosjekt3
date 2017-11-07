@@ -1,0 +1,57 @@
+%Prosjekt 3 - Eirik Andre Nordbø, Tobias Mohn Werner
+%
+
+clear all
+clc
+close all
+%---------------------------Constants----------------------------------
+c.Tf = 660.4+273;   %[K]        Melting point of pure Al
+c.Te = 577+273;     %[K]        Eutectic point Al-Si system
+c.Ce = 12.6;        %[wt%]      Eutectic comp. Al-Si system
+c.Cs = 1.8;         %[wt%]      Max solubility of Si in Al(s) Al-Si system
+c.k = 0.13;         %           Partition coefficient (=Cl/Cs)
+c.pc = 2.58*10^6;   %[J/K*m^3]  Volume heat capacity
+c.dHf =9.5*10^8;    %[J/m^3]    Latent heat of fusion
+c.ks = 95;           %[W/K*m]    Thermal conductivity (solid)
+c.m=(c.Tf-c.Te)/c.Ce; %[K/wt%]
+%----------------------------------------------------------------------
+
+%---------------------Assumptions for comparison-----------------------
+C0_1=1; %[wt%Si]
+C0_2=8; %[wt%Si]
+
+TL(1)=c.Tf -c.m*C0_1;
+TL(2)=c.Tf -c.m*C0_2;
+%----------------------------------------------------------------------
+
+%-------------------Lever rule derivated fraction----------------------
+fs_eq=@(T,TL) (1/(1-c.k))*((TL-T)/(c.Tf-T));
+%----------------------------------------------------------------------
+
+%c)
+dT=0.5; 
+
+for i=1:length(TL)
+    T(1)=TL(i);
+    fs(1,i)=0;
+    j=1;
+    while fs(j,i)<1
+        T(j+1)=T(j)-dT;
+        fs(j+1,i)=fs_eq(T(j),TL(i));
+        j=j+1;
+    end
+end
+
+figure
+for i=1:length(TL)
+    plot(T-273,fs(:,i))
+    hold on
+end
+axis([0 inf 0 1])
+title('Lever rule solid fraction')
+label('1wt%Si','8wt%Si')
+grid
+xlabel('T(°C)')
+ylabel('solid fraction (f');
+
+%fs_star=@(T,TL) 1-((1/(c.Tf-TL))^())*()^()
