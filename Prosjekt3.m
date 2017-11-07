@@ -26,33 +26,52 @@ TL(2)=c.Tf -c.m*C0_2;
 
 %-------------------Lever rule derivated fraction----------------------
 fs_eq=@(T,TL) (1/(1-c.k))*((TL-T)/(c.Tf-T));
+dfs_eq=@(T,TL) (1/(1-c.k))*((c.Tf-TL)/(c.Tf-T)^2);
 %----------------------------------------------------------------------
 
 %c)
 dT=0.5; 
 T(1)=TL(1);
 for i=1:length(TL)
-    fs(1,1)=0;
+    fs(1,1)=0; %initial values
+    dfs(1,1)=dfs_eq(T(1),TL(1)); %df/dT
     fs(1,2)=0;
+    dfs(1,2)=dfs_eq(T(1),TL(2));
     j=1;
     while (fs(j,1)<1) || (fs(j,2)<1)
         T(j+1)=T(j)-dT;
-        fs(j+1,1)=fs_eq(T(j),TL(1));
-        fs(j+1,2)=fs_eq(T(j),TL(2));
+        fs(j+1,1)=fs_eq(T(j+1),TL(1));
+        dfs(j+1,1)=dfs_eq(T(j+1),TL(1));
+        fs(j+1,2)=fs_eq(T(j+1),TL(2));
+        dfs(j+1,2)=dfs_eq(T(j+1),TL(2));
         j=j+1;
     end
 end
 
 figure
+subplot(2,1,1)
 for i=1:length(TL)
     plot(T-273,fs(:,i))
     hold on
 end
-axis([0 c.Tf 0 1])
+axis([0 c.Tf 0 1]);
+set(gca,'xdir','reverse');
 title('Eq. lever rule solid fraction')
 legend('1wt%Si','8wt%Si')
 grid
 xlabel('T(°C)')
 ylabel('Solid fraction, f');
 
+subplot(2,1,2)
+for i=1:length(TL)
+    plot(T-273,dfs(:,i))
+    hold on
+end
+axis([0 c.Tf -inf inf]);
+set(gca,'xdir','reverse');
+title('Eq. lever rule solid fraction')
+legend('1wt%Si','8wt%Si')
+grid
+xlabel('T(°C)')
+ylabel('Change in solid fraction, df/dT');
 %fs_star=@(T,TL) 1-((1/(c.Tf-TL))^())*()^()
