@@ -1,4 +1,4 @@
-%Prosjekt 3 - Eirik Andre Nordbø, Tobias Mohn Werner
+%Prosjekt 3 - Eirik Andre Nordb�, Tobias Mohn Werner
 %
 
 clear all
@@ -49,6 +49,7 @@ while (fs(j,1)<1) || (fs(j,2)<1)
     j=j+1;
 end
 
+
 %-----------------------Eutectic fraction------------------------------
 fe_eq=@(TL) 1-(1/(1-c.k))*((TL-c.Te)/(c.Tf-c.Te));
 %----------------------------------------------------------------------
@@ -62,6 +63,7 @@ for i=1:length(TL)
 end
 
 %Creating the perfect plot------------------------------------------
+
 axis([0 c.Tf 0 1]);
 set(gca,'xdir','reverse');
 title('Eq. lever rule solid fraction')
@@ -83,16 +85,22 @@ str2=strcat(strstart2,strend2);
 legend(str1,str2,'Location','southeast')
 %---------------------------------------------------------------------
 grid
-xlabel('T(°C)')
+xlabel('T(�C)')
 ylabel('Solid fraction, f');
 
 
 subplot(2,1,2)
-
 for i=1:length(TL)
     plot(T(:,i)-273,dfs(:,i))
     hold on
 end
+axis([0 c.Tf -inf inf]);
+set(gca,'xdir','reverse');
+title('Eq. lever rule solid fraction')
+legend('1wt%Si','8wt%Si')
+grid
+xlabel('T(�C)')
+ylabel('Change in solid fraction, df/dT');
 
 axis([0 c.Tf -inf inf]);
 set(gca,'xdir','reverse');
@@ -107,15 +115,24 @@ ylabel('Change in solid fraction, df/dT');
 
 
 % oppgave 1d
-fs_star_eq=@(T,TL) 1-((c.Tf-T)/(c.Tf-TL))^(1/(k-1))
-for i=1:length(TL)
-    fs_star(1,2)=0;
-    fs_star(1,1)=fs_star_eq(T(i),TL(1))
-    j=1;
-    while (fs(j,1)<1) || (fs(j,2)<1)
-        T(j+1)=T(j)-dT;
-        fs_star(1,1)=fs_star_eq(T(i),TL(1))
-        fs(j+1,1)=fs_eq(T(j),TL(1));
-        fs(j+1,2)=fs_eq(T(j),TL(2));
-        j=j+1;
-    end
+fs_star_eq=@(T,TL) 1-((c.Tf-T)/(c.Tf-TL))^(1/(c.k-1));
+clear T 
+T(1,1)=TL(1);
+T(1,2)=TL(2);
+
+fs_star(1,2)=0;
+fs_star(1,1)=0;
+j=1;
+while T(j,1)>273 || T(j,2)>273
+    T(j+1,1)=T(j,1)-dT;
+    T(j+1,2)=T(j,2)-dT;
+    fs_star(j+1,1)=fs_star_eq(T(j+1,1),TL(1));
+    fs_star(j+1,2)=fs_star_eq(T(j+1,2),TL(2));
+    j=j+1;
+end
+
+figure(1)
+subplot(2,1,1)
+plot(T(:,1)-273,fs_star(:,1),T(:,2)-273,fs_star(:,2),'o')
+legend('1wt%Si','8wt%Si')
+
