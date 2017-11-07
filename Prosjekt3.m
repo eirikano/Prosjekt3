@@ -74,7 +74,7 @@ axis([0 c.Tf -inf inf]);
 set(gca,'xdir','reverse');
 title('Solid fraction: Lever rule vs Scheil')
 grid
-xlabel('T(Â°C)')
+xlabel('T(°C)')
 ylabel('Change in solid fraction, df/dT');
 
 
