@@ -81,17 +81,42 @@ ylabel('Change in solid fraction, df/dT');
 
 
 % oppgave 1d
-fs_star_eq=@(T,TL) 1-((c.Tf-T)/(c.Tf-TL))^(1/(c.k-1))
-for i=1:length(TL)
-    fs_star(1,2)=0;
-    fs_star(1,1)=0;
-    j=1;
-    while (fs_star(j,1)<1) || (fs_star(j,2)<1)
-        T(j+1)=T(j)-dT;
-        fs_star(j+1,1)=fs_star_eq(T(j),TL(1))
-        fs_star(j+1,2)=fs_star_eq(T(j),TL(2));
-        j=j+1;
-    end
+fs_star_eq=@(T,TL) 1-((c.Tf-T)/(c.Tf-TL))^(1/(c.k-1));
+clear T 
+T(1,1)=TL(1);
+T(1,2)=TL(2);
+
+fs_star(1,2)=0;
+fs_star(1,1)=0;
+j=1;
+while T(j,1)>273 || T(j,2)>273
+    T(j+1,1)=T(j,1)-dT;
+    T(j+1,2)=T(j,2)-dT;
+    fs_star(j+1,1)=fs_star_eq(T(j+1,1),TL(1));
+    fs_star(j+1,2)=fs_star_eq(T(j+1,2),TL(2));
+    j=j+1;
 end
 
+figure(1)
+subplot(2,1,1)
+plot(T(:,1)-273,fs_star(:,1),'--b',T(:,2)-273,fs_star(:,2),'--r')
+legend('1wt%Si','8wt%Si')
 
+
+clear T 
+T(1,1)=TL(1);
+T(1,2)=TL(2);
+dfs_star_eq = @(T,TL) (1)/(c.k-1)*((1)/(c.Tf-TL))^((1)/(c.k-1))*(c.Tf-T)^((2-c.k)/(c.k-1));
+
+j=1;
+while T(j,1)>273 || T(j,2)>273
+    T(j+1,1)=T(j,1)-dT;
+    T(j+1,2)=T(j,2)-dT;
+    dfs_star(j+1,1)=dfs_star_eq(T(j+1,1),TL(1));
+    dfs_star(j+1,2)=dfs_star_eq(T(j+1,2),TL(2));
+    j=j+1;
+end
+figure(1)
+subplot(2,1,2)
+plot(T(:,1)-273,-dfs_star(:,1),'--b',T(:,2)-273,-dfs_star(:,2),'--r')
+legend('1wt%Si','8wt%Si')
