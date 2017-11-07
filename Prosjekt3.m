@@ -60,27 +60,9 @@ for i=1:length(TL)
     plot(T(:,i)-273,fs(:,i))
     hold on
 end
-%Creating the perfect plot------------------------------------------
-axis([0 c.Tf 0 1]);
-set(gca,'xdir','reverse');
-title('Solid fraction: Lever rule vs Scheil')
-fe1=fe_eq(TL(1));
-fe2=fe_eq(TL(2));
-if fe1<0
-    fe1=0;
-elseif fe2<0
-    fe2=0;
-end
-strstart1=['Lever rule, ',num2str(C0_1)];
-strend1=['wt%Si f_e = ', num2str(fe1,'%.3f')];
-strstart2=['Lever rule, ',num2str(C0_2)];
-strend2=['wt%Si f_e = ', num2str(fe2,'%.3f')];
-str1=strcat(strstart1,strend1);
-str2=strcat(strstart2,strend2);
-legend(str1,str2,'Location','southeast')
-%---------------------------------------------------------------------
+
 grid
-xlabel('T(Â°C)')
+xlabel('T(°C)')
 ylabel('Solid fraction, f');
 
 subplot(2,1,2)
@@ -116,7 +98,39 @@ end
 figure(1)
 subplot(2,1,1)
 plot(T(:,1)-273,fs_star(:,1),'--b',T(:,2)-273,fs_star(:,2),'--r')
-legend('1wt%Si','8wt%Si')
+
+%------------equilibrium fraction scheil----
+fe_eq_scheil=@(TL) ((c.Tf-c.Te)/(c.Tf-TL))^(1/(c.k-1));
+%------------------------------------
+%Creating the perfect plot------------------------------------------
+axis([0 c.Tf 0 1]);
+set(gca,'xdir','reverse');
+title('Solid fraction: Lever rule vs Scheil')
+fe1_lever=fe_eq(TL(1));
+fe2_lever=fe_eq(TL(2));
+fe1_scheil=fe_eq_scheil(TL(1));
+fe2_scheil=fe_eq_scheil(TL(2));
+if fe1_lever<0
+    fe1_lever=0;
+elseif fe2_lever<0
+    fe2_lever=0;
+end
+strstart1=['Lever rule, ',num2str(C0_1)];
+strend1=['wt%Si f_e = ', num2str(fe1_lever,'%.3f')];
+strstart2=['Lever rule, ',num2str(C0_2)];
+strend2=['wt%Si f_e = ', num2str(fe2_lever,'%.3f')];
+str1=strcat(strstart1,strend1);
+str2=strcat(strstart2,strend2);
+strstart3=['Scheil, ',num2str(C0_1)];
+strend3=['wt%Si f_e = ', num2str(fe1_scheil,'%.3f')];
+strstart4=['Scheil, ',num2str(C0_2)];
+strend4=['wt%Si f_e = ', num2str(fe2_scheil,'%.3f')];
+str1=strcat(strstart1,strend1);
+str2=strcat(strstart2,strend2);
+str3=strcat(strstart3,strend3);
+str4=strcat(strstart4,strend4);
+legend(str1,str2,str3,str4,'Location','southeast')
+%---------------------------------------------------------------------
 
 
 clear T 
@@ -135,5 +149,5 @@ end
 figure(1)
 subplot(2,1,2)
 plot(T(:,1)-273,-dfs_star(:,1),'--b',T(:,2)-273,-dfs_star(:,2),'--r')
-legend('1wt%Si','8wt%Si')
+
 
