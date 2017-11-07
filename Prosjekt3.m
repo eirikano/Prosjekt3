@@ -30,13 +30,12 @@ fs_eq=@(T,TL) (1/(1-c.k))*((TL-T)/(c.Tf-T));
 
 %c)
 dT=0.5; 
-
+T(1)=TL(1);
 for i=1:length(TL)
-    T(1)=TL(i);
     fs(1,1)=0;
     fs(1,2)=0;
     j=1;
-    while fs(j,1)<1 && fs(j,2)<1
+    while (fs(j,1)<1) || (fs(j,2)<1)
         T(j+1)=T(j)-dT;
         fs(j+1,1)=fs_eq(T(j),TL(1));
         fs(j+1,2)=fs_eq(T(j),TL(2));
@@ -50,7 +49,7 @@ for i=1:length(TL)
     hold on
 end
 axis([0 c.Tf 0 1])
-title('Lever rule solid fraction')
+title('Eq. lever rule solid fraction')
 legend('1wt%Si','8wt%Si')
 grid
 xlabel('T(°C)')
