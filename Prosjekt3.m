@@ -56,3 +56,6 @@ xlabel('T(°C)')
 ylabel('Solid fraction, f');
 
 %fs_star=@(T,TL) 1-((1/(c.Tf-TL))^())*()^()
+
+
+%testtest
