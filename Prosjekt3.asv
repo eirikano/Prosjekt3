@@ -272,7 +272,7 @@ Neq=1;               %Neq=Nr/N
 
 
 %=========================Equilibrium Lever rule===========================
-n=1; %can be changed to n=[1,2,3]
+n=2; %can be changed to n=[1,2,3]
 %Finding value for fm_r
 dT_r=TL-T_n;
 fm_r=fs_eq(T_n,TL);
@@ -282,13 +282,13 @@ fm_r=fs_eq(T_n,TL);
 t_star_eq=@(dT,C0,fm,n) t_r*((dT_r/dT)^2)*(C0/C0_r)*((Neq)^(1/n))*(((fm/fm_r))^(1/n));
 %--------------------------------------------------------------------------
 
-%Starting value-----
+%Starting value??
 t_star_i=t_star_eq(dT_r,C0_r,fm_r,n);
 t=1;
 dt=1;
 dX=-dt*((1-Xc)^((t/t_star_i)^n))*log(1-Xc)*((t/t_star_i)^n)*(n/t);
 X(1)=0+dX;
-%-------------------
+
 j=1;
 k=1;
 T_lev(1)=TL+5;
@@ -314,14 +314,9 @@ j=j-1;
 k=k-1;
 limit=T_lev(j)-10;
 a_star=a*(c.ks/c.kl);
-fm(k+1)=fs_eq(T(j+1),TL);
 while T_lev(j)>limit
-    dT(k)=TL-T_lev(j);
-    dfm=abs(fm(k+1)-fm(k));
-    T_lev(j+1)=T_lev(j)+a_star*((c.dHf/(c.pc*dT(k)))*dfm-1)^-1;
-    t(j+1)=t(j)+dt;
-    k=k+1;
-    fm(k+1)=fs_eq(T(j+1),TL);
+    T_lev(j+1)=T_lev(j)+a_star*(dHf
+    
     j=j+1;
 end
 
