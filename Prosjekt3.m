@@ -324,7 +324,7 @@ while X(k)<=1 %Transient part and solid growth (nucleation)
     t(j+1)=t(j)+dt;
     j=j+1;
 end
-fm(k)=fs_eq(T(j+1),TL);
+fm(k)=fs_eq(T_lev(j),TL);
 j=j-1;
 k=k-1;
 a_star=a*(c.ks/c.kl);
