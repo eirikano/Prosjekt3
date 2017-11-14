@@ -16,6 +16,7 @@ c.ks = 95;           %[W/K*m]    Thermal conductivity (solid)
 c.m=(c.Tf-c.Te)/c.Ce; %[K/wt%]
 %----------------------------------------------------------------------
 
+
 %---------------------Assumptions for comparison-----------------------
 C0_1=1; %[wt%Si]
 C0_2=8; %[wt%Si]
@@ -79,6 +80,7 @@ ylabel('Change in solid fraction, df/dT');
 
 
 % oppgave 1d
+
 fs_star_eq=@(T,TL) 1-((c.Tf-T)/(c.Tf-TL))^(1/(c.k-1));
 clear T 
 T(1,1)=TL(1);
@@ -150,4 +152,69 @@ figure(1)
 subplot(2,1,2)
 plot(T(:,1)-273,-dfs_star(:,1),'--b',T(:,2)-273,-dfs_star(:,2),'--r')
 
+%e) 
+
+t_star=1; 
+%----------------------Johnson-Mehl-Avrami equation------------------------
+X_JMA=@(Xc,t,n) 1-(1-Xc)^((t/t_star)^n);
+%--------------------------------------------------------------------------
+Xc=[0.05, 0.15];
+
+% n=1;
+% %Asking user for n value
+% prompt = {'Enter dimention size, n=[1,2,3]:'};
+% dlg_title = 'Input';
+% num_lines = 1;
+% defaultans = {num2str(n)};
+% answer=inputdlg(prompt,dlg_title,num_lines,defaultans);
+% if str2num(answer{1})>3 || str2num(answer{1})<1
+%     display('Not a valid dimention!')
+%     return
+% end
+% n = str2num(answer{1});
+% %-----------------------
+
+n=[1,2,3];
+dt=0.6;
+X=ones(length(n),length(Xc),1000); %Creating a 3D matrix with 1000 time values.
+for k=1:length(n)
+    for i=1:length(Xc)
+        j=1;
+        X(k,i,j)=0;
+        t(j)=0;
+        while X(k,i,j)<0.97
+            t(j+1)=t(j)+dt;
+            X(k,i,j+1) = X_JMA(Xc(i),t(j+1),n(k));
+            j=j+1;
+        end
+        t_plot=t; %saves the longest time vector for plotting
+    end
+end
+
+figure
+str1=['Xc = ', num2str(Xc(1))];
+str2=['Xc = ', num2str(Xc(2))];  
+grid
+
+
+for k=1:length(n)
+    subplot(3,1,k)
+    str_n=[', n = ', num2str(n(k))];
+    for i=1:length(Xc)
+        X_n(i,:)=X(k,i,:);
+        plot(t_plot./t_star,X_n(i,1:length(t_plot)));
+        hold on
+    end
+    if k==1
+       title('JMA eq. X vs t/t*') 
+    elseif k==2
+        ylabel('X')
+    end
+    legend(strcat(str1,str_n),strcat(str2,str_n));  
+end
+
+xlabel('t/t*')
+
+%h)
+%dX/dt vs X
 
