@@ -295,29 +295,30 @@ t_star_eq=@(dT,C0,fm,n) t_r*((dT_r/dT)^2)*(C0/C0_r)*((Neq)^(1/n))*(((fm/fm_r))^(
 
 %Starting value-----
 t_star_i=t_star_eq(dT_r,C0_r,fm_r,n);
-t=1;
-dt=0.4;
-dX=-dt*((1-Xc)^((t/t_star_i)^n))*log(1-Xc)*((t/t_star_i)^n)*(n/t);
+t(1)=1;
+dt=0.1;
+dX=-dt*((1-Xc)^((t(1)/t_star_i)^n))*log(1-Xc)*((t(1)/t_star_i)^n)*(n/t(1));
 X(1)=0+dX;
 %-------------------
 j=1;
 k=1;
 T_lev(1)=TL+5;
-t(1)=1;
 fs(1)=0;
+fm(1)=fs_eq(T_n,TL);
 TLplot(1)=TL;
+
 TEutPlot(1)=c.Te;
 
-while X(k)<=1 %Transient part and solid growth (nucleation)
-    if T_lev(j)<T_n
 
-        dT(k)=TL-T_lev(j);
-        fm(k)=fs_eq(T_lev(j),TL);
+while X(k)<=1 %Transient part and solid growth (nucleation)
+    if T_lev(j)<=T_n
+        dT(k)=TL-T_lev(j);  
         t_star(k)=t_star_eq(dT(k),C0_r,fm(k),n);
-        X(k+1)=X(k)-dt*(n*(1-X(k))*log(abs(1-X(k))))/(t_star(k)*(log(abs(1-X(k)))/log(1-Xc))^(1/n));
-        fs(k+1)=fs(k)+fm(k)*(X(k+1)-X(k));
-        
-        T_lev(j+1)=T_lev(j)-a+(c.dHf/c.pc)*(fs(k+1)-fs(k))/dt;
+        dX_dt=-(n*(1-X(k))*log(abs(1-X(k))))/(t_star(k)*(log(abs(1-X(k)))/log(1-Xc))^(1/n));
+        fs(k+1)=fs(k)+fm(k)*(dX_dt)*dt;
+        T_lev(j+1)=T_lev(j)+dt*(-a+(c.dHf/c.pc)*(fs(k+1)-fs(k))/dt);
+        fm(k+1)=fs_eq(T_lev(j+1),TL);
+        X(k+1)=fs(k+1)/fm(k+1);
         k=k+1;
     else
         T_lev(j+1)=T_lev(j)-dt*a;
@@ -331,14 +332,9 @@ fm(k)=fs_eq(T_lev(j),TL);
 j=j-1;
 k=k-1;
 a_star=a*(c.ks/c.kl);
-Tsmooth=T_lev(j)-25;
 while T_lev(j)>c.Te %Steady state growth
     dT(k)=TL-T_lev(j);
-    if T_lev(j)>Tsmooth
-        dfm=abs(fm(k)-fm(k-2))/6;
-    else
-        dfm=abs(fm(k)-fm(k-1));
-    end
+    dfm=abs(fm(k)-fm(k-1));
     T_lev(j+1)=T_lev(j)+a_star*dt*((c.dHf/(c.pc*dT(k)))*dfm-1)^-1;
     TLplot(j+1)=TL;
     TEutPlot(j+1)=c.Te;
