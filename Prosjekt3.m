@@ -34,7 +34,11 @@ fs_eq=@(T,TL) (1/(1-c.k))*((TL-T)/(c.Tf-T));
 dfs_eq=@(T,TL) (1/(c.k-1))*((TL-c.Tf)/(c.Tf-T)^2);
 %----------------------------------------------------------------------
 
-o=menu('velg oppgave:', 'c','d','e','f','g','h');
+%-----------------------Eutectic fraction------------------------------
+fe_eq=@(TL) 1-(1/(1-c.k))*((TL-c.Te)/(c.Tf-c.Te));
+%----------------------------------------------------------------------
+
+o=menu('velg oppgave:', 'c','d','e','f');
 %c)
 switch o
     case 1
@@ -57,9 +61,7 @@ while (fs(j,1)<1) || (fs(j,2)<1)
     j=j+1;
 end
 
-%-----------------------Eutectic fraction------------------------------
-fe_eq=@(TL) 1-(1/(1-c.k))*((TL-c.Te)/(c.Tf-c.Te));
-%----------------------------------------------------------------------
+
 
 figure
 subplot(2,1,1)
@@ -158,7 +160,7 @@ end
 figure(1)
 subplot(2,1,2)
 plot(T(:,1)-273,-dfs_star(:,1),'--b',T(:,2)-273,-dfs_star(:,2),'--r')
-loop=menu('kjør koden igjen?', 'ja', 'nei')
+loop=menu('kjør koden igjen?', 'ja', 'nei');
 %e) 
 
     case 2
@@ -220,7 +222,7 @@ for k=1:length(n)
 end
 
 xlabel('t/t*')
-loop=menu('kjør koden igjen?', 'ja', 'nei')
+loop=menu('kjør koden igjen?', 'ja', 'nei');
 %h)
     case 3
 %dX/dt vs X
@@ -262,7 +264,7 @@ for k=1:length(n)
     legend(strcat(str1,str_n),strcat(str2,str_n));  
 end
 xlabel('X')
-loop=menu('kjør koden igjen?', 'ja', 'nei')
+loop=menu('kjør koden igjen?', 'ja', 'nei');
 
 %%
 %Heat flow model
@@ -324,7 +326,7 @@ while X(k)<=1 %Transient part and solid growth (nucleation)
     t(j+1)=t(j)+dt;
     j=j+1;
 end
-fm(k)=fs_eq(T(j+1),TL);
+fm(k)=fs_eq(T_lev(j),TL);
 j=j-1;
 k=k-1;
 a_star=a*(c.ks/c.kl);
@@ -337,6 +339,7 @@ while T_lev(j)>c.Te %Steady state growth
         dfm=abs(fm(k)-fm(k-1));
     end
     T_lev(j+1)=T_lev(j)+a_star*((c.dHf/(c.pc*dT(k)))*dfm-1)^-1;
+    TLplot(j+1)=TL;
     t(j+1)=t(j)+dt;
     fm(k+1)=fs_eq(T_lev(j+1),TL);
     k=k+1;
@@ -351,6 +354,7 @@ t2=t1+(c.dHf/(a_star*c.pc))*fe_eq(TL);
 while t(j)<t2
     T_lev(j+1)=c.Te;
     t(j+1)=t(j)+dt;
+    TLplot(j+1)=TL;
     j=j+1;
 end
 
@@ -358,7 +362,7 @@ end
 figure
 plot(t,T_lev,t,TLplot,'--y');
 
-loop=menu('kjør koden igjen?', 'ja', 'nei')
+loop=menu('kj�r koden igjen?', 'ja', 'nei');
 end
 end
 
