@@ -1,9 +1,12 @@
 %Prosjekt 3 - Eirik Andre NordbÃ¸, Tobias Mohn Werner
 %
 
+
+
 clear all
 clc
 close all
+loop=1;
 %---------------------------Constants----------------------------------
 c.Tf = 660.4+273;   %[K]        Melting point of pure Al
 c.Te = 577+273;     %[K]        Eutectic point Al-Si system
@@ -17,7 +20,7 @@ c.kl = 95;          %[W/K*m]    Thermal conductivity (liquid)
 c.m=(c.Tf-c.Te)/c.Ce; %[K/wt%]
 %----------------------------------------------------------------------
 
-
+while loop ==1
 %---------------------Assumptions for comparison-----------------------
 C0_1=1; %[wt%Si]
 C0_2=8; %[wt%Si]
@@ -31,7 +34,10 @@ fs_eq=@(T,TL) (1/(1-c.k))*((TL-T)/(c.Tf-T));
 dfs_eq=@(T,TL) (1/(c.k-1))*((TL-c.Tf)/(c.Tf-T)^2);
 %----------------------------------------------------------------------
 
+o=menu('velg oppgave:', 'c','d','e','f','g','h');
 %c)
+switch o
+    case 1
 dT=0.5; %Temperature step
 %initial values
 T(1,1)=TL(1);
@@ -152,9 +158,10 @@ end
 figure(1)
 subplot(2,1,2)
 plot(T(:,1)-273,-dfs_star(:,1),'--b',T(:,2)-273,-dfs_star(:,2),'--r')
-
+loop=menu('kjør koden igjen?', 'ja', 'nei')
 %e) 
 
+    case 2
 t_star=1; 
 %----------------------Johnson-Mehl-Avrami equation------------------------
 X_JMA=@(Xc,t,n) 1-(1-Xc)^((t/t_star)^n);
@@ -169,7 +176,7 @@ X_JMA=@(Xc,t,n) 1-(1-Xc)^((t/t_star)^n);
 % defaultans = {num2str(n)};
 % answer=inputdlg(prompt,dlg_title,num_lines,defaultans);
 % if str2num(answer{1})>3 || str2num(answer{1})<1
-%     display('Not a valid dimention!')
+%     display('Not a valid dimension!')
 %     return
 % end
 % n = str2num(answer{1});
@@ -213,8 +220,9 @@ for k=1:length(n)
 end
 
 xlabel('t/t*')
-
+loop=menu('kjør koden igjen?', 'ja', 'nei')
 %h)
+    case 3
 %dX/dt vs X
 %--------------------------------------------------------------------------
 dXdt_eq = @(t_star,Xc,n,X) (n.*(1-X).*log(1-X))./(t_star.*(log(1-X)./log(1-Xc)).^(1/n));
@@ -254,10 +262,11 @@ for k=1:length(n)
     legend(strcat(str1,str_n),strcat(str2,str_n));  
 end
 xlabel('X')
+loop=menu('kjør koden igjen?', 'ja', 'nei')
 
 %%
 %Heat flow model
-
+    case 4
 clear n t X TL Xc fs
 %-----------------------------Input parameters-----------------------------
 t_r=6;               %s
@@ -272,7 +281,7 @@ Neq=1;               %Neq=Nr/N
 
 
 %=========================Equilibrium Lever rule===========================
-n=1; %can be changed to n=[1,2,3]
+n=2; %can be changed to n=[1,2,3]
 %Finding value for fm_r
 dT_r=TL-T_n;
 fm_r=fs_eq(T_n,TL);
@@ -294,7 +303,7 @@ k=1;
 T_lev(1)=TL+5;
 t(1)=1;
 fs(1)=0;
-
+TLplot(1)=TL;
 while X(k)<=1
     if T_lev(j)<TL
         dT(k)=TL-T_lev(j);
@@ -307,6 +316,7 @@ while X(k)<=1
     else
         T_lev(j+1)=T_lev(j)-dt*a;
     end
+    TLplot(j+1)=TL;
     t(j+1)=t(j)+dt;
     j=j+1;
 end
@@ -322,12 +332,16 @@ while T_lev(j)>limit
     t(j+1)=t(j)+dt;
     k=k+1;
     fm(k+1)=fs_eq(T(j+1),TL);
+    TLplot(j+1)=TL;
     j=j+1;
 end
 
 figure
-plot(t,T_lev);
+plot(t,T_lev,t,TLplot,'--y');
 
+loop=menu('kjør koden igjen?', 'ja', 'nei')
+end
+end
 
 
 
