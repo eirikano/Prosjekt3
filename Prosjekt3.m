@@ -272,7 +272,7 @@ Neq=1;               %Neq=Nr/N
 
 
 %=========================Equilibrium Lever rule===========================
-n=1; %can be changed to n=[1,2,3]
+n=2; %can be changed to n=[1,2,3]
 %Finding value for fm_r
 dT_r=TL-T_n;
 fm_r=fs_eq(T_n,TL);
@@ -285,7 +285,7 @@ t_star_eq=@(dT,C0,fm,n) t_r*((dT_r/dT)^2)*(C0/C0_r)*((Neq)^(1/n))*(((fm/fm_r))^(
 %Starting value-----
 t_star_i=t_star_eq(dT_r,C0_r,fm_r,n);
 t=1;
-dt=1;
+dt=0.4;
 dX=-dt*((1-Xc)^((t/t_star_i)^n))*log(1-Xc)*((t/t_star_i)^n)*(n/t);
 X(1)=0+dX;
 %-------------------
@@ -295,13 +295,14 @@ T_lev(1)=TL+5;
 t(1)=1;
 fs(1)=0;
 
-while X(k)<=1
-    if T_lev(j)<TL
+while X(k)<=1 %Transient part and solid growth (nucleation)
+    if T_lev(j)<T_n
         dT(k)=TL-T_lev(j);
         fm(k)=fs_eq(T_lev(j),TL);
         t_star(k)=t_star_eq(dT(k),C0_r,fm(k),n);
         X(k+1)=X(k)-dt*(n*(1-X(k))*log(abs(1-X(k))))/(t_star(k)*(log(abs(1-X(k)))/log(1-Xc))^(1/n));
         fs(k+1)=fs(k)+fm(k)*(X(k+1)-X(k));
+        
         T_lev(j+1)=T_lev(j)-a+(c.dHf/c.pc)*(fs(k+1)-fs(k))/dt;
         k=k+1;
     else
@@ -310,20 +311,34 @@ while X(k)<=1
     t(j+1)=t(j)+dt;
     j=j+1;
 end
+fm(k)=fs_eq(T(j+1),TL);
 j=j-1;
 k=k-1;
-limit=T_lev(j)-10;
 a_star=a*(c.ks/c.kl);
-fm(k+1)=fs_eq(T(j+1),TL);
-while T_lev(j)>limit
+Tsmooth=T_lev(j)-25;
+while T_lev(j)>c.Te %Steady state growth
     dT(k)=TL-T_lev(j);
-    dfm=abs(fm(k+1)-fm(k));
+    if T_lev(j)>Tsmooth
+        dfm=abs(fm(k)-fm(k-2))/6;
+    else
+        dfm=abs(fm(k)-fm(k-1));
+    end
     T_lev(j+1)=T_lev(j)+a_star*((c.dHf/(c.pc*dT(k)))*dfm-1)^-1;
     t(j+1)=t(j)+dt;
+    fm(k+1)=fs_eq(T_lev(j+1),TL);
     k=k+1;
-    fm(k+1)=fs_eq(T(j+1),TL);
     j=j+1;
 end
+
+%Isothermal eutectic growth
+t1=t(j-1);
+t2=t1+(c.dHf/(a_star*c.pc))*fe_eq(TL);
+while t(j)<t2
+    T_lev(j+1)=c.Te;
+    t(j+1)=t(j)+dt;
+    j=j+1;
+end
+
 
 figure
 plot(t,T_lev);
