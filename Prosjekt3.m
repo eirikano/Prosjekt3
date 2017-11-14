@@ -38,7 +38,7 @@ dfs_eq=@(T,TL) (1/(c.k-1))*((TL-c.Tf)/(c.Tf-T)^2);
 fe_eq=@(TL) 1-(1/(1-c.k))*((TL-c.Te)/(c.Tf-c.Te));
 %----------------------------------------------------------------------
 
-o=menu('velg oppgave:', 'c','d','e','f');
+o=menu('velg oppgave:', 'c','d','e','f', 'avslutt program');
 %c)
 switch o
     case 1
@@ -160,29 +160,14 @@ end
 figure(1)
 subplot(2,1,2)
 plot(T(:,1)-273,-dfs_star(:,1),'--b',T(:,2)-273,-dfs_star(:,2),'--r')
-loop=menu('kjør koden igjen?', 'ja', 'nei');
+
 %e) 
 
     case 2
 t_star=1; 
 %----------------------Johnson-Mehl-Avrami equation------------------------
 X_JMA=@(Xc,t,n) 1-(1-Xc)^((t/t_star)^n);
-%--------------------------------------------------------------------------
 
-
-% n=1;
-% %Asking user for n value
-% prompt = {'Enter dimention size, n=[1,2,3]:'};
-% dlg_title = 'Input';
-% num_lines = 1;
-% defaultans = {num2str(n)};
-% answer=inputdlg(prompt,dlg_title,num_lines,defaultans);
-% if str2num(answer{1})>3 || str2num(answer{1})<1
-%     display('Not a valid dimension!')
-%     return
-% end
-% n = str2num(answer{1});
-% %-----------------------
 Xc=[0.05, 0.15];
 n=[1,2,3];
 dt=0.6;
@@ -222,7 +207,7 @@ for k=1:length(n)
 end
 
 xlabel('t/t*')
-loop=menu('kjør koden igjen?', 'ja', 'nei');
+
 %h)
     case 3
 %dX/dt vs X
@@ -264,7 +249,7 @@ for k=1:length(n)
     legend(strcat(str1,str_n),strcat(str2,str_n));  
 end
 xlabel('X')
-loop=menu('kjør koden igjen?', 'ja', 'nei');
+
 
 %%
 %Heat flow model
@@ -283,7 +268,22 @@ Neq=1;               %Neq=Nr/N
 
 
 %=========================Equilibrium Lever rule===========================
-n=2; %can be changed to n=[1,2,3]
+%--------------------------------------------------------------------------
+
+
+n=1
+%Asking user for n value
+prompt = {'Enter dimention size, n=[1,2,3]:'};
+dlg_title = 'Input';
+num_lines = 1;
+defaultans = {num2str(n)};
+answer=inputdlg(prompt,dlg_title,num_lines,defaultans);
+if str2num(answer{1})>3 || str2num(answer{1})<1
+    display('Not a valid number of dimensions!')
+    return
+end
+n = str2num(answer{1});
+
 %Finding value for fm_r
 dT_r=TL-T_n;
 fm_r=fs_eq(T_n,TL);
@@ -307,6 +307,9 @@ fs(1)=0;
 fm(1)=fs_eq(T_n,TL);
 TLplot(1)=TL;
 
+TEutPlot(1)=c.Te;
+
+
 while X(k)<=1 %Transient part and solid growth (nucleation)
     if T_lev(j)<=T_n
         dT(k)=TL-T_lev(j);  
@@ -321,6 +324,7 @@ while X(k)<=1 %Transient part and solid growth (nucleation)
         T_lev(j+1)=T_lev(j)-dt*a;
     end
     TLplot(j+1)=TL;
+    TEutPlot(j+1)=c.Te;
     t(j+1)=t(j)+dt;
     j=j+1;
 end
@@ -331,9 +335,9 @@ a_star=a*(c.ks/c.kl);
 while T_lev(j)>c.Te %Steady state growth
     dT(k)=TL-T_lev(j);
     dfm=abs(fm(k)-fm(k-1));
-
     T_lev(j+1)=T_lev(j)+a_star*dt*((c.dHf/(c.pc*dT(k)))*dfm-1)^-1;
     TLplot(j+1)=TL;
+    TEutPlot(j+1)=c.Te;
     t(j+1)=t(j)+dt;
     fm(k+1)=fs_eq(T_lev(j+1),TL);
     k=k+1;
@@ -349,14 +353,16 @@ while t(j)<t2
     T_lev(j+1)=c.Te;
     t(j+1)=t(j)+dt;
     TLplot(j+1)=TL;
+    TEutPlot(j+1)=c.Te;
     j=j+1;
 end
 
 
 figure
-plot(t,T_lev,t,TLplot,'--y');
+plot(t,T_lev,t,TLplot,'--y',t,TEutPlot, '--y');
 
-loop=menu('kj�r koden igjen?', 'ja', 'nei');
+    case 5
+        loop=2;
 end
 end
 
