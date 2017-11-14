@@ -307,9 +307,15 @@ fs(1)=0;
 fm(1)=fs_eq(T_n,TL);
 TLplot(1)=TL;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 TEutPlot(1)=c.Te;
 >>>>>>> master
+=======
+
+TEutPlot(1)=c.Te;
+
+>>>>>>> cb16317c9628c106a6e2df9ac0bb826c2f1c3e6b
 
 while X(k)<=1 %Transient part and solid growth (nucleation)
     if T_lev(j)<=T_n
@@ -336,6 +342,7 @@ a_star=a*(c.ks/c.kl);
 while T_lev(j)>c.Te %Steady state growth
     dT(k)=TL-T_lev(j);
 <<<<<<< HEAD
+<<<<<<< HEAD
     dfm=abs(fm(k)-fm(k-1));
 
 =======
@@ -345,6 +352,9 @@ while T_lev(j)>c.Te %Steady state growth
         dfm=abs(fm(k)-fm(k-1));
     end
 >>>>>>> master
+=======
+    dfm=abs(fm(k)-fm(k-1));
+>>>>>>> cb16317c9628c106a6e2df9ac0bb826c2f1c3e6b
     T_lev(j+1)=T_lev(j)+a_star*dt*((c.dHf/(c.pc*dT(k)))*dfm-1)^-1;
     TLplot(j+1)=TL;
     TEutPlot(j+1)=c.Te;
