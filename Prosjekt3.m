@@ -271,7 +271,7 @@ Neq=1;               %Neq=Nr/N
 %--------------------------------------------------------------------------
 
 
-n=1
+n=1;
 %Asking user for n value
 prompt = {'Enter dimention size, n=[1,2,3]:'};
 dlg_title = 'Input';
@@ -295,10 +295,10 @@ t_star_eq=@(dT,C0,fm,n) t_r*((dT_r/dT)^2)*(C0/C0_r)*((Neq)^(1/n))*(((fm/fm_r))^(
 
 %Starting value-----
 t_star_i=t_star_eq(dT_r,C0_r,fm_r,n);
-t(1)=1;
-dt=0.1;
+dt=0.05;
+t(1)=dt;
 dX=-dt*((1-Xc)^((t(1)/t_star_i)^n))*log(1-Xc)*((t(1)/t_star_i)^n)*(n/t(1));
-X(1)=0+dX;
+X(1)=dX;
 %-------------------
 j=1;
 k=1;
@@ -306,11 +306,9 @@ T_lev(1)=TL+5;
 fs(1)=0;
 fm(1)=fs_eq(T_n,TL);
 TLplot(1)=TL;
-
 TEutPlot(1)=c.Te;
 
-
-while X(k)<=1 %Transient part and solid growth (nucleation)
+while X(k)<=0.99 %Transient part and solid growth (nucleation)
     if T_lev(j)<=T_n
         dT(k)=TL-T_lev(j);  
         t_star(k)=t_star_eq(dT(k),C0_r,fm(k),n);
@@ -330,7 +328,6 @@ while X(k)<=1 %Transient part and solid growth (nucleation)
 end
 fm(k)=fs_eq(T_lev(j),TL);
 j=j-1;
-k=k-1;
 a_star=a*(c.ks/c.kl);
 while T_lev(j)>c.Te %Steady state growth
     dT(k)=TL-T_lev(j);
