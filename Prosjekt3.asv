@@ -266,6 +266,7 @@ xlabel('X')
 %%
 %Heat flow model
     case 4
+
     clear n t X TL Xc fs T TLplot TEutPlot fm fs dfs_dt
     %Asking user for parameters------------
     n=1;
@@ -423,10 +424,14 @@ while loop2==1
                     fs_eq=fs_star_eq;
                     f_eut=fe_eq_scheil;
                 end
+
                 %---------------------------------------
             case 4
                 loop2=0;
         end
+
+end %while loop for heat flow model menu
+
 
 end %while loop for heat flow model menu
 

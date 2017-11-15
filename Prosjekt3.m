@@ -1,4 +1,4 @@
-%Prosjekt 3 - Eirik Andre NordbÃƒÂ¸, Tobias Mohn Werner
+%Prosjekt 3 - Eirik Andre Nordb�, Tobias Mohn Werner
 %
 
 
@@ -292,6 +292,7 @@ xlabel('X')
     %---------------------------------------
 loop2=1;
 while loop2==1
+
     %-----------------------------Input parameters-----------------------------
     t_r=6;               %s
     C0_r=4;              %wt%Si
