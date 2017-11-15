@@ -1,4 +1,4 @@
-%Prosjekt 3 - Eirik Andre NordbÃ¸, Tobias Mohn Werner
+%Prosjekt 3 - Eirik Andre NordbÃƒÂ¸, Tobias Mohn Werner
 %
 
 
@@ -72,7 +72,7 @@ for i=1:length(TL)
 end
 
 grid
-xlabel('T(�C)')
+xlabel('T(°C)')
 ylabel('Solid fraction, f_s');
 
 subplot(2,1,2)
@@ -84,7 +84,7 @@ axis([0 c.Tf -inf inf]);
 set(gca,'xdir','reverse');
 title('Solid fraction: Lever rule vs Scheil')
 grid
-xlabel('T(�C)')
+xlabel('T(°C)')
 ylabel('Change in solid fraction, df/dT');
 
 
@@ -327,7 +327,10 @@ while X(k)<=0.99 %Transient part and solid growth (nucleation)
     j=j+1;
 end
 a_star=a*(c.ks/c.kl);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 58c78182873d2f77ffb300a7cf8fddeb26cd1a2c
 T_smooth=T_lev(j)-10;
 grid=50;
 smooth_a=linspace(a,a_star,grid);
