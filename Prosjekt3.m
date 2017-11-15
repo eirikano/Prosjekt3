@@ -328,12 +328,7 @@ while X(k)<=0.99 %Transient part and solid growth (nucleation)
     j=j+1;
 end
 a_star=a*(c.ks/c.kl);
-while T_lev(j) > c.Te %Steady state growth
-    dT(k)=TL-T_lev(j);
-    dfm=abs(fm(k)-fm(k-1));
-    T_lev(j+1)=T_lev(j)+a_star*dt*((c.dHf/(c.pc*dT(k)))*dfm-1)^-1;
-    TLplot(j+1)=TL;
-    TEutPlot(j+1)=c.Te;
+
 T_smooth=T_lev(j)-10;
 grid=50;
 smooth_a=linspace(a,a_star,grid);
