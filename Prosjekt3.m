@@ -72,8 +72,8 @@ for i=1:length(TL)
 end
 
 grid
-xlabel('T(Â°C)')
-ylabel('Solid fraction, f');
+xlabel('T(°C)')
+ylabel('Solid fraction, f_s');
 
 subplot(2,1,2)
 for i=1:length(TL)
@@ -84,7 +84,7 @@ axis([0 c.Tf -inf inf]);
 set(gca,'xdir','reverse');
 title('Solid fraction: Lever rule vs Scheil')
 grid
-xlabel('T(Â°C)')
+xlabel('T(°C)')
 ylabel('Change in solid fraction, df/dT');
 
 
@@ -254,7 +254,7 @@ xlabel('X')
 %%
 %Heat flow model
     case 4
-clear n t X TL Xc fs
+clear n t X TL Xc fs T_lev TLplot TEutPlot fm fs 
 %-----------------------------Input parameters-----------------------------
 t_r=6;               %s
 C0_r=4;              %wt%Si
@@ -276,7 +276,7 @@ n=1;
 prompt = {'Enter dimention size, n=[1,2,3]:'};
 dlg_title = 'Input';
 num_lines = 1;
-defaultans = {num2str(n)};
+defaultans = {num2str(1)};
 answer=inputdlg(prompt,dlg_title,num_lines,defaultans);
 if str2num(answer{1})>3 || str2num(answer{1})<1
     display('Not a valid number of dimensions!')
@@ -310,7 +310,7 @@ TEutPlot(1)=c.Te;
 
 while X(k)<=0.99 %Transient part and solid growth (nucleation)
     if T_lev(j)<=T_n
-        dT(k)=TL-T_lev(j);  
+        dT(k)=TL-T_lev(j);
         t_star(k)=t_star_eq(dT(k),C0_r,fm(k),n);
         dX_dt=-(n*(1-X(k))*log(abs(1-X(k))))/(t_star(k)*(log(abs(1-X(k)))/log(1-Xc))^(1/n));
         fs(k+1)=fs(k)+fm(k)*(dX_dt)*dt;
@@ -329,7 +329,7 @@ end
 fm(k)=fs_eq(T_lev(j),TL);
 j=j-1;
 a_star=a*(c.ks/c.kl);
-while T_lev(j)>c.Te %Steady state growth
+while T_lev(j) > c.Te %Steady state growth (EUTECTIC?)
     dT(k)=TL-T_lev(j);
     dfm=abs(fm(k)-fm(k-1));
     T_lev(j+1)=T_lev(j)+a_star*dt*((c.dHf/(c.pc*dT(k)))*dfm-1)^-1;
@@ -359,7 +359,7 @@ figure
 plot(t,T_lev,t,TLplot,'--y',t,TEutPlot, '--y');
 
     case 5
-        loop=2;
+        loop=0;
 end
 end
 
