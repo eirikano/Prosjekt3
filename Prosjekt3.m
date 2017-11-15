@@ -1,4 +1,4 @@
-%Prosjekt 3 - Eirik Andre Nordbø, Tobias Mohn Werner
+%Prosjekt 3 - Eirik Andre Nordbï¿½, Tobias Mohn Werner
 %
 
 
@@ -21,6 +21,8 @@ c.m=(c.Tf-c.Te)/c.Ce; %[K/wt%]
 %----------------------------------------------------------------------
 
 while loop ==1
+clear n t X T Xc fs TLplot TEutPlot fm fs T 
+%clearing all saved variables
 %---------------------Assumptions for comparison-----------------------
 C0_1=1; %[wt%Si]
 C0_2=8; %[wt%Si]
@@ -153,8 +155,6 @@ str4=strcat(strstart4,strend4);
 legend(str1,str2,str3,str4,'Location','southeast')
 %---------------------------------------------------------------------
 
-
-clear T 
 T(1,1)=TL(1);
 T(1,2)=TL(2);
 dfs_star_eq = @(T,TL) (1)/(c.k-1)*((1)/(c.Tf-TL))^((1)/(c.k-1))*(c.Tf-T)^((2-c.k)/(c.k-1));
@@ -226,7 +226,6 @@ xlabel('t/t*')
 %--------------------------------------------------------------------------
 dXdt_eq = @(t_star,Xc,n,X) (n.*(1-X).*log(1-X))./(t_star.*(log(1-X)./log(1-Xc)).^(1/n));
 %--------------------------------------------------------------------------
-clear X 
 
 n=[1,2,3];
 Xc=[0.05, 0.15];
@@ -267,25 +266,145 @@ xlabel('X')
 %%
 %Heat flow model
     case 4
-clear n t X TL Xc fs T_lev TLplot TEutPlot fm fs 
-%-----------------------------Input parameters-----------------------------
-t_r=6;               %s
-C0_r=4;              %wt%Si
-TL=c.Tf -c.m*C0_r;%K
-T_n=TL-2;        %K
-Xc=0.05;      
-a=1;                 %K/s
-Neq=1;               %Neq=Nr/N
-%--------------------------------------------------------------------------
+    clear n t X TL Xc fs T TLplot TEutPlot fm fs dfs_dt
+    %Asking user for parameters------------
+    n=1;
+    eq_or_non_eq=1;
+    prompt = {'Enter dimention size, n=[1,2,3]:','Scheil=1, Equilibrium=2'};
+    dlg_title = 'Input';
+    num_lines = 1;
+    defaultans = {num2str(n),num2str(eq_or_non_eq)};
+    answer=inputdlg(prompt,dlg_title,num_lines,defaultans);
+    if str2num(answer{1})>3 || str2num(answer{1})<1
+        display('Not a valid number of dimensions!')
+        return
+    end
+    n = str2num(answer{1});
+    eq_or_non_eq=str2num(answer{2});
+
+    if eq_or_non_eq==2
+        fs_eq=fs_eq_lever;
+        f_eut=fe_eq;
+    else
+        fs_eq=fs_star_eq;
+        f_eut=fe_eq_scheil;
+    end
+    %---------------------------------------
 loop2=1;
 while loop2==1
-    o2=menu('Velg deloppgave:', 'Angi parametere','Bekreftelse av modell?','Tilbake');
-    %c)
+
+    %-----------------------------Input parameters-----------------------------
+    t_r=6;               %s
+    C0_r=4;              %wt%Si
+    TL=c.Tf -c.m*C0_r;%K
+    T_n=TL-2;        %K
+    Xc=0.05;      
+    a=1;                 %K/s
+    Neq=1;               %Neq=Nr/N
+    %--------------------------------------------------------------------------
+    
+    o2=menu('Velg deloppgave:', 'Full heat model','Comparison with dfs/dt','Change parameters','Tilbake');
+
+    %Finding value for fm_r
+    dT_r=TL-T_n;
+    fm_r=fs_eq(T_n,TL);
+
+    %----------------------------Equation for t*-------------------------------
+    t_star_eq=@(dT,C0,fm,n) t_r*((dT_r/dT)^2)*(C0/C0_r)*((Neq)^(1/n))*(((fm/fm_r))^(1/n));
+    %--------------------------------------------------------------------------
+
+    %Starting value-----
+    t_star_i=t_star_eq(dT_r,C0_r,fm_r,n);
+    dt=0.01;
+    t(1)=dt;
+    dX=-dt*((1-Xc)^((t(1)/t_star_i)^n))*log(1-Xc)*((t(1)/t_star_i)^n)*(n/t(1));
+    X(1)=dX;
+    %-------------------
+    j=1;
+    k=1;
+    T(1)=TL+5;
+    fs(1)=0;
+    fm(1)=fs_eq(T_n,TL);
+    TLplot(1)=TL;
+    TEutPlot(1)=c.Te;
+    index=0;
+    while X(k)<=0.999 %Transient part and solid growth (nucleation)
+        if T(j)<=T_n
+            dT(k)=TL-T(j);
+            t_star(k)=t_star_eq(dT(k),C0_r,fm(k),n);
+            dX_dt=-(n*(1-X(k))*log(abs(1-X(k))))/(t_star(k)*(log(abs(1-X(k)))/log(1-Xc))^(1/n));
+            fs(k+1)=fs(k)+fm(k)*(dX_dt)*dt;
+            dfs_dt(k)=(fs(k+1)-fs(k))/dt;
+            T(j+1)=T(j)+dt*(-a+(c.dHf/c.pc)*(fs(k+1)-fs(k))/dt);
+            fm(k+1)=fs_eq(T(j+1),TL);
+            X(k+1)=fs(k+1)/fm(k+1);
+            k=k+1;
+        else
+            T(j+1)=T(j)-dt*a;
+            index=index+1;
+        end
+        TLplot(j+1)=TL;
+        TEutPlot(j+1)=c.Te;
+        t(j+1)=t(j)+dt;
+        j=j+1;
+    end
+    a_star=a*(c.ks/c.kl);
+    grid=3000;
+    smooth_a=linspace(a,a_star,grid);
+    T_smooth=T(j)-10;
+    l=1;
+    dt=0.001;
+    while T(j)>c.Te %Steady state growth
+        if l<grid+1 %for smooth transition between a and a*
+           a_star_adj=smooth_a(l);
+           l=l+1;
+        end
+        dT(k)=TL-T(j); 
+        dfm_dT=(fm(k)-fm(k-1))/((TL-dT(k))-(TL-dT(k-1)));
+        T(j+1)=T(j)+a_star_adj*dt*((c.dHf/(c.pc)*dfm_dT)-1)^(-1);
+        t(j+1)=t(j)+dt;
+        fm(k+1)=fs_eq(T(j+1),TL);
+        dfs_dt(k)=(fm(k+1)-fm(k))/dt;
+
+        TLplot(j+1)=TL;
+        TEutPlot(j+1)=c.Te;
+        k=k+1;
+        j=j+1;
+    end
+
+    %Isothermal eutectic growth
+    t1=t(j-1);
+    t2=t1+(c.dHf/(a_star*c.pc))*f_eut(TL);
+    while t(j)<t2
+        T(j+1)=c.Te;
+        t(j+1)=t(j)+dt;
+        TLplot(j+1)=TL;
+        TEutPlot(j+1)=c.Te;
+        j=j+1;
+    end
+
         switch o2
-            case 1
+            case 1 %Full heat model plot
+                figure
+                plot(t,T,t,TLplot,'--y',t,TEutPlot, '--y');
+                
+            case 2 %Confirming the model (dfs/dt)
+                figure
+                subplot(2,1,1)
+                plot(t(index:index+k-2),T(index:index+k-2),t(index:index+k-2),TLplot(index:index+k-2),'--y')
+                grid;
+                ylabel('T (K)')
+                subplot(2,1,2)
+                plot(t(index:index+k-2),dfs_dt);
+                grid;
+                ylabel('dfs/dt')
+                xlabel('t (s)')
+                
+            case 3 %Change parameters
+                clear n t X TL Xc fs T TLplot TEutPlot fm fs dfs_dt
+                %Asking user for parameters------------
                 n=1;
                 eq_or_non_eq=1;
-                %Asking user for n value
                 prompt = {'Enter dimention size, n=[1,2,3]:','Scheil=1, Equilibrium=2'};
                 dlg_title = 'Input';
                 num_lines = 1;
@@ -305,90 +424,8 @@ while loop2==1
                     fs_eq=fs_star_eq;
                     f_eut=fe_eq_scheil;
                 end
-
-                %Finding value for fm_r
-                dT_r=TL-T_n;
-                fm_r=fs_eq(T_n,TL);
-
-
-                %----------------------------Equation for t*-------------------------------
-                t_star_eq=@(dT,C0,fm,n) t_r*((dT_r/dT)^2)*(C0/C0_r)*((Neq)^(1/n))*(((fm/fm_r))^(1/n));
-                %--------------------------------------------------------------------------
-
-                %Starting value-----
-                t_star_i=t_star_eq(dT_r,C0_r,fm_r,n);
-                dt=0.01;
-                t(1)=dt;
-                dX=-dt*((1-Xc)^((t(1)/t_star_i)^n))*log(1-Xc)*((t(1)/t_star_i)^n)*(n/t(1));
-                X(1)=dX;
-                %-------------------
-                j=1;
-                k=1;
-                T_lev(1)=TL+5;
-                fs(1)=0;
-                fm(1)=fs_eq(T_n,TL);
-                TLplot(1)=TL;
-                TEutPlot(1)=c.Te;
-
-                while X(k)<=0.99 %Transient part and solid growth (nucleation)
-                    if T_lev(j)<=T_n
-                        dT(k)=TL-T_lev(j);
-                        t_star(k)=t_star_eq(dT(k),C0_r,fm(k),n);
-                        dX_dt=-(n*(1-X(k))*log(abs(1-X(k))))/(t_star(k)*(log(abs(1-X(k)))/log(1-Xc))^(1/n));
-                        fs(k+1)=fs(k)+fm(k)*(dX_dt)*dt;
-                        T_lev(j+1)=T_lev(j)+dt*(-a+(c.dHf/c.pc)*(fs(k+1)-fs(k))/dt);
-                        fm(k+1)=fs_eq(T_lev(j+1),TL);
-                        X(k+1)=fs(k+1)/fm(k+1);
-                        k=k+1;
-                    else
-                        T_lev(j+1)=T_lev(j)-dt*a;
-                    end
-                    TLplot(j+1)=TL;
-                    TEutPlot(j+1)=c.Te;
-                    t(j+1)=t(j)+dt;
-                    j=j+1;
-                end
-                a_star=a*(c.ks/c.kl);
-
-                T_smooth=T_lev(j)-10;
-                grid=50;
-                smooth_a=linspace(a,a_star,grid);
-                l=1;
-                while T_lev(j)>c.Te %Steady state growth
-                    if l<grid+1 %for smooth transition between a and a*
-                       a_star_adj=smooth_a(l);
-                       l=l+1;
-                    end
-                    dT(k)=TL-T_lev(j); 
-                    dfm_dT=(fm(k)-fm(k-1))/((TL-dT(k))-(TL-dT(k-1)));
-                    T_lev(j+1)=T_lev(j)+a_star_adj*dt*((c.dHf/(c.pc)*dfm_dT)-1)^(-1);
-                    t(j+1)=t(j)+dt;
-                    fm(k+1)=fs_eq(T_lev(j+1),TL);
-
-                    TLplot(j+1)=TL;
-                    TEutPlot(j+1)=c.Te;
-                    k=k+1;
-                    j=j+1;
-                end
-
-                %Isothermal eutectic growth
-                t1=t(j-1);
-                t2=t1+(c.dHf/(a_star*c.pc))*f_eut(TL);
-                while t(j)<t2
-                    T_lev(j+1)=c.Te;
-                    t(j+1)=t(j)+dt;
-                    TLplot(j+1)=TL;
-                    TEutPlot(j+1)=c.Te;
-                    j=j+1;
-                end
-
-
-                figure
-                plot(t,T_lev,t,TLplot,'--y',t,TEutPlot, '--y');
-                
-            case 2
-                
-            case 3
+                %---------------------------------------
+            case 4
                 loop2=0;
         end
 
