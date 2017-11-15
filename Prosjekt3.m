@@ -30,15 +30,22 @@ TL(2)=c.Tf -c.m*C0_2;
 %----------------------------------------------------------------------
 
 %--------------Lever rule equilibrium fraction solid ------------------
-fs_eq=@(T,TL) (1/(1-c.k))*((TL-T)/(c.Tf-T));
+fs_eq_lever=@(T,TL) (1/(1-c.k))*((TL-T)/(c.Tf-T));
 dfs_eq=@(T,TL) (1/(c.k-1))*((TL-c.Tf)/(c.Tf-T)^2);
 %----------------------------------------------------------------------
 
-%-----------------------Eutectic fraction------------------------------
+%-----------------------Lever rule Eutectic fraction-------------------
 fe_eq=@(TL) 1-(1/(1-c.k))*((TL-c.Te)/(c.Tf-c.Te));
 %----------------------------------------------------------------------
 
-o=menu('velg oppgave:', 'c','d','e','f', 'avslutt program');
+%--------------Scheil non-equilibrium fraction solid ------------------
+fs_star_eq=@(T,TL) 1-((c.Tf-T)/(c.Tf-TL))^(1/(c.k-1));
+
+%-----------------------Equilibrium fraction scheil-----------------
+fe_eq_scheil=@(TL) ((c.Tf-c.Te)/(c.Tf-TL))^(1/(c.k-1));
+%-------------------------------------------------------------------
+
+o=menu('Velg oppgave:', 'Scheil vs Lever rule','X vs t/t*','X vs dX/dt','Heat flow model', 'Avslutt program');
 %c)
 switch o
     case 1
@@ -54,9 +61,9 @@ j=1;
 while (fs(j,1)<1) || (fs(j,2)<1)
     T(j+1,1)=T(j,1)-dT;
     T(j+1,2)=T(j,2)-dT;
-    fs(j+1,1)=fs_eq(T(j+1,1),TL(1));
+    fs(j+1,1)=fs_eq_lever(T(j+1,1),TL(1));
     dfs(j+1,1)=dfs_eq(T(j+1,1),TL(1));
-    fs(j+1,2)=fs_eq(T(j+1,2),TL(2));
+    fs(j+1,2)=fs_eq_lever(T(j+1,2),TL(2));
     dfs(j+1,2)=dfs_eq(T(j+1,2),TL(2));
     j=j+1;
 end
@@ -71,7 +78,7 @@ for i=1:length(TL)
     hold on
 end
 
-grid
+grid;
 xlabel('T(°C)')
 ylabel('Solid fraction, f_s');
 
@@ -90,7 +97,7 @@ ylabel('Change in solid fraction, df/dT');
 
 % oppgave 1d
 
-fs_star_eq=@(T,TL) 1-((c.Tf-T)/(c.Tf-TL))^(1/(c.k-1));
+
 clear T 
 T(1,1)=TL(1);
 T(1,2)=TL(2);
@@ -110,9 +117,7 @@ figure(1)
 subplot(2,1,1)
 plot(T(:,1)-273,fs_star(:,1),'--b',T(:,2)-273,fs_star(:,2),'--r')
 
-%------------equilibrium fraction scheil----
-fe_eq_scheil=@(TL) ((c.Tf-c.Te)/(c.Tf-TL))^(1/(c.k-1));
-%------------------------------------
+
 %Creating the perfect plot------------------------------------------
 axis([0 c.Tf 0 1]);
 set(gca,'xdir','reverse');
@@ -264,106 +269,123 @@ Xc=0.05;
 a=1;                 %K/s
 Neq=1;               %Neq=Nr/N
 %--------------------------------------------------------------------------
+loop2=1;
+while loop2==1
+    o2=menu('Velg deloppgave:', 'Angi parametere','Bekreftelse av model?','Tilbake');
+    %c)
+        switch o2
+            case 1
+                n=1;
+                eq_or_non_eq=1;
+                %Asking user for n value
+                prompt = {'Enter dimention size, n=[1,2,3]:','Scheil=1, Equilibrium=2'};
+                dlg_title = 'Input';
+                num_lines = 1;
+                defaultans = {num2str(n),num2str(eq_or_non_eq)};
+                answer=inputdlg(prompt,dlg_title,num_lines,defaultans);
+                if str2num(answer{1})>3 || str2num(answer{1})<1
+                    display('Not a valid number of dimensions!')
+                    return
+                end
+                n = str2num(answer{1});
+                eq_or_non_eq=str2num(answer{2});
+
+                if eq_or_non_eq==2
+                    fs_eq=fs_eq_lever;
+                    f_eut=fe_eq;
+                else
+                    fs_eq=fs_star_eq;
+                    f_eut=fe_eq_scheil;
+                end
+
+                %Finding value for fm_r
+                dT_r=TL-T_n;
+                fm_r=fs_eq(T_n,TL);
 
 
+                %----------------------------Equation for t*-------------------------------
+                t_star_eq=@(dT,C0,fm,n) t_r*((dT_r/dT)^2)*(C0/C0_r)*((Neq)^(1/n))*(((fm/fm_r))^(1/n));
+                %--------------------------------------------------------------------------
 
-%=========================Equilibrium Lever rule===========================
-%--------------------------------------------------------------------------
+                %Starting value-----
+                t_star_i=t_star_eq(dT_r,C0_r,fm_r,n);
+                dt=0.01;
+                t(1)=dt;
+                dX=-dt*((1-Xc)^((t(1)/t_star_i)^n))*log(1-Xc)*((t(1)/t_star_i)^n)*(n/t(1));
+                X(1)=dX;
+                %-------------------
+                j=1;
+                k=1;
+                T_lev(1)=TL+5;
+                fs(1)=0;
+                fm(1)=fs_eq(T_n,TL);
+                TLplot(1)=TL;
+                TEutPlot(1)=c.Te;
 
+                while X(k)<=0.99 %Transient part and solid growth (nucleation)
+                    if T_lev(j)<=T_n
+                        dT(k)=TL-T_lev(j);
+                        t_star(k)=t_star_eq(dT(k),C0_r,fm(k),n);
+                        dX_dt=-(n*(1-X(k))*log(abs(1-X(k))))/(t_star(k)*(log(abs(1-X(k)))/log(1-Xc))^(1/n));
+                        fs(k+1)=fs(k)+fm(k)*(dX_dt)*dt;
+                        T_lev(j+1)=T_lev(j)+dt*(-a+(c.dHf/c.pc)*(fs(k+1)-fs(k))/dt);
+                        fm(k+1)=fs_eq(T_lev(j+1),TL);
+                        X(k+1)=fs(k+1)/fm(k+1);
+                        k=k+1;
+                    else
+                        T_lev(j+1)=T_lev(j)-dt*a;
+                    end
+                    TLplot(j+1)=TL;
+                    TEutPlot(j+1)=c.Te;
+                    t(j+1)=t(j)+dt;
+                    j=j+1;
+                end
+                a_star=a*(c.ks/c.kl);
 
-n=1;
-%Asking user for n value
-prompt = {'Enter dimention size, n=[1,2,3]:'};
-dlg_title = 'Input';
-num_lines = 1;
-defaultans = {num2str(1)};
-answer=inputdlg(prompt,dlg_title,num_lines,defaultans);
-if str2num(answer{1})>3 || str2num(answer{1})<1
-    display('Not a valid number of dimensions!')
-    return
-end
-n = str2num(answer{1});
+                T_smooth=T_lev(j)-10;
+                grid=50;
+                smooth_a=linspace(a,a_star,grid);
+                l=1;
+                while T_lev(j)>c.Te %Steady state growth
+                    if l<grid+1 %for smooth transition between a and a*
+                       a_star_adj=smooth_a(l);
+                       l=l+1;
+                    end
+                    dT(k)=TL-T_lev(j); 
+                    dfm_dT=(fm(k)-fm(k-1))/((TL-dT(k))-(TL-dT(k-1)));
+                    T_lev(j+1)=T_lev(j)+a_star_adj*dt*((c.dHf/(c.pc)*dfm_dT)-1)^(-1);
+                    t(j+1)=t(j)+dt;
+                    fm(k+1)=fs_eq(T_lev(j+1),TL);
 
-%Finding value for fm_r
-dT_r=TL-T_n;
-fm_r=fs_eq(T_n,TL);
+                    TLplot(j+1)=TL;
+                    TEutPlot(j+1)=c.Te;
+                    k=k+1;
+                    j=j+1;
+                end
 
-
-%----------------------------Equation for t*-------------------------------
-t_star_eq=@(dT,C0,fm,n) t_r*((dT_r/dT)^2)*(C0/C0_r)*((Neq)^(1/n))*(((fm/fm_r))^(1/n));
-%--------------------------------------------------------------------------
-
-%Starting value-----
-t_star_i=t_star_eq(dT_r,C0_r,fm_r,n);
-dt=0.01;
-t(1)=dt;
-dX=-dt*((1-Xc)^((t(1)/t_star_i)^n))*log(1-Xc)*((t(1)/t_star_i)^n)*(n/t(1));
-X(1)=dX;
-%-------------------
-j=1;
-k=1;
-T_lev(1)=TL+5;
-fs(1)=0;
-fm(1)=fs_eq(T_n,TL);
-TLplot(1)=TL;
-TEutPlot(1)=c.Te;
-
-while X(k)<=0.99 %Transient part and solid growth (nucleation)
-    if T_lev(j)<=T_n
-        dT(k)=TL-T_lev(j);
-        t_star(k)=t_star_eq(dT(k),C0_r,fm(k),n);
-        dX_dt=-(n*(1-X(k))*log(abs(1-X(k))))/(t_star(k)*(log(abs(1-X(k)))/log(1-Xc))^(1/n));
-        fs(k+1)=fs(k)+fm(k)*(dX_dt)*dt;
-        T_lev(j+1)=T_lev(j)+dt*(-a+(c.dHf/c.pc)*(fs(k+1)-fs(k))/dt);
-        fm(k+1)=fs_eq(T_lev(j+1),TL);
-        X(k+1)=fs(k+1)/fm(k+1);
-        k=k+1;
-    else
-        T_lev(j+1)=T_lev(j)-dt*a;
-    end
-    TLplot(j+1)=TL;
-    TEutPlot(j+1)=c.Te;
-    t(j+1)=t(j)+dt;
-    j=j+1;
-end
-a_star=a*(c.ks/c.kl);
-
-T_smooth=T_lev(j)-10;
-grid=50;
-smooth_a=linspace(a,a_star,grid);
-l=1;
-while T_lev(j)>c.Te %Steady state growth
-    if l<grid+1 %for smooth transition between a and a*
-       a_star_adj=smooth_a(l);
-       l=l+1;
-    end
-    dT(k)=TL-T_lev(j); 
-    dfm_dT=(fm(k)-fm(k-1))/((TL-dT(k))-(TL-dT(k-1)));
-    T_lev(j+1)=T_lev(j)+a_star_adj*dt*((c.dHf/(c.pc)*dfm_dT)-1)^(-1);
-    t(j+1)=t(j)+dt;
-    fm(k+1)=fs_eq(T_lev(j+1),TL);
-    
-    TLplot(j+1)=TL;
-    TEutPlot(j+1)=c.Te;
-    k=k+1;
-    j=j+1;
-end
-
-%Isothermal eutectic growth
-t1=t(j-1);
-t2=t1+(c.dHf/(a_star*c.pc))*fe_eq(TL);
-while t(j)<t2
-    T_lev(j+1)=c.Te;
-    t(j+1)=t(j)+dt;
-    TLplot(j+1)=TL;
-    TEutPlot(j+1)=c.Te;
-    j=j+1;
-end
+                %Isothermal eutectic growth
+                t1=t(j-1);
+                t2=t1+(c.dHf/(a_star*c.pc))*f_eut(TL);
+                while t(j)<t2
+                    T_lev(j+1)=c.Te;
+                    t(j+1)=t(j)+dt;
+                    TLplot(j+1)=TL;
+                    TEutPlot(j+1)=c.Te;
+                    j=j+1;
+                end
 
 
-figure
-plot(t,T_lev,t,TLplot,'--y',t,TEutPlot, '--y');
+                figure
+                plot(t,T_lev,t,TLplot,'--y',t,TEutPlot, '--y');
+                
+            case 2
+                
+            case 3
+                loop2=0;
+        end
+end %while loop for heat flow model menu
 
+        
     case 5
         loop=0;
 end
