@@ -49,6 +49,9 @@ o=menu('Velg oppgave:', 'Scheil vs Lever rule','X vs t/t*','X vs dX/dt','Heat fl
 %c)
 switch o
     case 1
+        
+clear t
+        
 dT=0.5; %Temperature step
 %initial values
 T(1,1)=TL(1);
@@ -70,7 +73,7 @@ end
 
 
 
-figure
+figure(1)
 subplot(2,1,1)
 
 for i=1:length(TL)
@@ -78,8 +81,10 @@ for i=1:length(TL)
     hold on
 end
 
+
 grid;
 xlabel('T(°C)')
+
 ylabel('Solid fraction, f_s');
 
 subplot(2,1,2)
@@ -173,6 +178,8 @@ t_star=1;
 %----------------------Johnson-Mehl-Avrami equation------------------------
 X_JMA=@(Xc,t,n) 1-(1-Xc)^((t/t_star)^n);
 
+clear t, 
+
 Xc=[0.05, 0.15];
 n=[1,2,3];
 dt=0.6;
@@ -191,7 +198,7 @@ for k=1:length(n)
     end
 end
 
-figure
+figure(2)
 str1=['Xc = ', num2str(Xc(1))];
 str2=['Xc = ', num2str(Xc(2))];  
 
@@ -234,7 +241,7 @@ for k=1:length(n)
     end
 end
 
-figure
+figure (3)
 str1=['Xc = ', num2str(Xc(1))];
 str2=['Xc = ', num2str(Xc(2))];  
 
@@ -384,13 +391,16 @@ while loop2==1
             case 3
                 loop2=0;
         end
+
 end %while loop for heat flow model menu
 
 
     case 5
+
         loop=0;
-end
-end
+end     %menyswitch
+end     %restartloop
+
 
 
 

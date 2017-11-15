@@ -1,4 +1,6 @@
-%Prosjekt 3 - Eirik Andre NordbÃƒÆ’Ã‚Â¸, Tobias Mohn Werner
+
+%Prosjekt 3 - Eirik Andre NordbÃƒÂ¸, Tobias Mohn Werner
+
 %
 
 
@@ -221,6 +223,7 @@ xlabel('t/t*')
 %--------------------------------------------------------------------------
 dXdt_eq = @(t_star,Xc,n,X) (n.*(1-X).*log(1-X))./(t_star.*(log(1-X)./log(1-Xc)).^(1/n));
 %--------------------------------------------------------------------------
+clear X 
 
 n=[1,2,3];
 Xc=[0.05, 0.15];
@@ -385,17 +388,18 @@ ylabel('Temperature [K]')
 legend ('T','T_{liquidus}','T_{eutectic}')
         switch n
             case 1
-                title ('Temperature variation vs time, n=1')
+                title ('Temperature variation vs time, time exponent 1')
             case 2
-                title ('Temperature variation vs time, n=2')
+                title ('Temperature variation vs time, time exponent 2')
             case 3
-                title ('Temperature variation vs time, n=3')
+                title ('Temperature variation vs time, time exponent 3')
         end
 
     case 5
-        loop=0;
+       loop=0;
+end     %menyswitch
 end
-end
+
 
 
 
