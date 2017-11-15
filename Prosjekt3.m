@@ -72,7 +72,7 @@ for i=1:length(TL)
 end
 
 grid
-xlabel('T(ï¿½C)')
+xlabel('T(°C)')
 ylabel('Solid fraction, f_s');
 
 subplot(2,1,2)
@@ -84,7 +84,7 @@ axis([0 c.Tf -inf inf]);
 set(gca,'xdir','reverse');
 title('Solid fraction: Lever rule vs Scheil')
 grid
-xlabel('T(ï¿½C)')
+xlabel('T(°C)')
 ylabel('Change in solid fraction, df/dT');
 
 
@@ -327,6 +327,7 @@ while X(k)<=0.99 %Transient part and solid growth (nucleation)
     j=j+1;
 end
 a_star=a*(c.ks/c.kl);
+
 T_smooth=T_lev(j)-10;
 grid=50;
 smooth_a=linspace(a,a_star,grid);
@@ -339,12 +340,6 @@ while T_lev(j)>c.Te %Steady state growth
     dT(k)=TL-T_lev(j); 
     dfm_dT=(fm(k)-fm(k-1))/((TL-dT(k))-(TL-dT(k-1)));
     T_lev(j+1)=T_lev(j)+a_star_adj*dt*((c.dHf/(c.pc)*dfm_dT)-1)^(-1);
-while T_lev(j) > c.Te %Steady state growth (EUTECTIC?)
-    dT(k)=TL-T_lev(j);
-    dfm=abs(fm(k)-fm(k-1));
-    T_lev(j+1)=T_lev(j)+a_star*dt*((c.dHf/(c.pc*dT(k)))*dfm-1)^-1;
-    TLplot(j+1)=TL;
-    TEutPlot(j+1)=c.Te;
     t(j+1)=t(j)+dt;
     fm(k+1)=fs_eq(T_lev(j+1),TL);
     
