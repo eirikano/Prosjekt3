@@ -214,6 +214,7 @@ xlabel('t/t*')
 %--------------------------------------------------------------------------
 dXdt_eq = @(t_star,Xc,n,X) (n.*(1-X).*log(1-X))./(t_star.*(log(1-X)./log(1-Xc)).^(1/n));
 %--------------------------------------------------------------------------
+clear X 
 
 n=[1,2,3];
 Xc=[0.05, 0.15];
@@ -361,8 +362,22 @@ while t(j)<t2
 end
 
 
-figure
+figure(4)
 plot(t,T_lev,t,TLplot,'--y',t,TEutPlot, '--y');
+xlabel('Time [s]')
+ylabel('Temperature [K]')
+legend ('T','T_{liquidus}','T_{eutectic}')
+        switch n
+            case 1
+                title ('Temperature variation vs time, time exponent 1')
+            case 2
+                title ('Temperature variation vs time, time exponent 2')
+            case 3
+                title ('Temperature variation vs time, time exponent 3')
+        end
+
+end
+
 
     case 5
         loop=0;
