@@ -329,7 +329,7 @@ end
 fm(k)=fs_eq(T_lev(j),TL);
 j=j-1;
 a_star=a*(c.ks/c.kl);
-while T_lev(j) > c.Te %Steady state growth (EUTECTIC?)
+while T_lev(j) > c.Te %Steady state growth
     dT(k)=TL-T_lev(j);
     dfm=abs(fm(k)-fm(k-1));
     T_lev(j+1)=T_lev(j)+a_star*dt*((c.dHf/(c.pc*dT(k)))*dfm-1)^-1;
@@ -355,9 +355,19 @@ while t(j)<t2
 end
 
 
-figure
+figure(4)
 plot(t,T_lev,t,TLplot,'--y',t,TEutPlot, '--y');
-
+xlabel('Time [s]')
+ylabel('Temperature [K]')
+legend ('T','T_{liquidus}','T_{eutectic}')
+        switch n
+            case 1
+                title ('Temperature variation vs time, time exponent 1')
+            case 2
+                title ('Temperature variation vs time, time exponent 2')
+            case 3
+                title ('Temperature variation vs time, time exponent 3')
+        end
     case 5
         loop=0;
 end
