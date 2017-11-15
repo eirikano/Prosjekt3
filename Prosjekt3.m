@@ -1,4 +1,4 @@
-%Prosjekt 3 - Eirik Andre NordbÃƒÂ¸, Tobias Mohn Werner
+%Prosjekt 3 - Eirik Andre Nordb�, Tobias Mohn Werner
 %
 
 
@@ -279,7 +279,7 @@ Neq=1;               %Neq=Nr/N
 %--------------------------------------------------------------------------
 loop2=1;
 while loop2==1
-    o2=menu('Velg deloppgave:', 'Angi parametere','Bekreftelse av model?','Tilbake');
+    o2=menu('Velg deloppgave:', 'Angi parametere','Bekreftelse av modell?','Tilbake');
     %c)
         switch o2
             case 1
