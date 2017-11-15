@@ -1,6 +1,4 @@
-
 %Prosjekt 3 - Eirik Andre NordbÃƒÂ¸, Tobias Mohn Werner
-
 %
 
 
@@ -53,6 +51,9 @@ o=menu('Velg oppgave:', 'Scheil vs Lever rule','X vs t/t*','X vs dX/dt','Heat fl
 %c)
 switch o
     case 1
+        
+clear t
+        
 dT=0.5; %Temperature step
 %initial values
 T(1,1)=TL(1);
@@ -74,7 +75,7 @@ end
 
 
 
-figure
+figure(1)
 subplot(2,1,1)
 
 for i=1:length(TL)
@@ -82,8 +83,10 @@ for i=1:length(TL)
     hold on
 end
 
+
 grid;
 xlabel('T(°C)')
+
 ylabel('Solid fraction, f_s');
 
 subplot(2,1,2)
@@ -175,6 +178,8 @@ t_star=1;
 %----------------------Johnson-Mehl-Avrami equation------------------------
 X_JMA=@(Xc,t,n) 1-(1-Xc)^((t/t_star)^n);
 
+clear t, 
+
 Xc=[0.05, 0.15];
 n=[1,2,3];
 dt=0.6;
@@ -193,7 +198,7 @@ for k=1:length(n)
     end
 end
 
-figure
+figure(2)
 str1=['Xc = ', num2str(Xc(1))];
 str2=['Xc = ', num2str(Xc(2))];  
 
@@ -221,7 +226,6 @@ xlabel('t/t*')
 %--------------------------------------------------------------------------
 dXdt_eq = @(t_star,Xc,n,X) (n.*(1-X).*log(1-X))./(t_star.*(log(1-X)./log(1-Xc)).^(1/n));
 %--------------------------------------------------------------------------
-clear X 
 
 n=[1,2,3];
 Xc=[0.05, 0.15];
@@ -236,7 +240,7 @@ for k=1:length(n)
     end
 end
 
-figure
+figure (3)
 str1=['Xc = ', num2str(Xc(1))];
 str2=['Xc = ', num2str(Xc(2))];  
 
@@ -346,7 +350,7 @@ while loop2==1
     a_star=a*(c.ks/c.kl);
     grid=3000;
     smooth_a=linspace(a,a_star,grid);
-    T_smooth=T(j)-10;
+    t_smooth
     l=1;
     dt=0.001;
     while T(j)>c.Te %Steady state growth
@@ -387,10 +391,13 @@ while loop2==1
                 figure
                 subplot(2,1,1)
                 plot(t(index:index+k-2),T(index:index+k-2),t(index:index+k-2),TLplot(index:index+k-2),'--y')
-                grid
-                yla
+                grid;
+                ylabel('T (K)')
                 subplot(2,1,2)
                 plot(t(index:index+k-2),dfs_dt);
+                grid;
+                ylabel('dfs/dt')
+                xlabel('t (s)')
                 
             case 3 %Change parameters
                 clear n t X TL Xc fs T TLplot TEutPlot fm fs dfs_dt
@@ -419,15 +426,16 @@ while loop2==1
                 %---------------------------------------
             case 4
                 loop2=0;
-
         end
+
 end %while loop for heat flow model menu
 
 
     case 5
-       loop=0;
+
+        loop=0;
 end     %menyswitch
-end
+end     %restartloop
 
 
 

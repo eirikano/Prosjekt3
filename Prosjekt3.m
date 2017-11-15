@@ -350,7 +350,6 @@ while loop2==1
     a_star=a*(c.ks/c.kl);
     grid=3000;
     smooth_a=linspace(a,a_star,grid);
-    T_smooth=T(j)-10;
     l=1;
     dt=0.001;
     while T(j)>c.Te %Steady state growth
