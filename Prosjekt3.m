@@ -327,10 +327,7 @@ while X(k)<=0.99 %Transient part and solid growth (nucleation)
     j=j+1;
 end
 a_star=a*(c.ks/c.kl);
-<<<<<<< HEAD
 
-=======
->>>>>>> 58c78182873d2f77ffb300a7cf8fddeb26cd1a2c
 T_smooth=T_lev(j)-10;
 grid=50;
 smooth_a=linspace(a,a_star,grid);
