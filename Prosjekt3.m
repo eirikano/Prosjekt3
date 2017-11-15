@@ -42,6 +42,9 @@ o=menu('velg oppgave:', 'c','d','e','f', 'avslutt program');
 %c)
 switch o
     case 1
+        
+clear t
+        
 dT=0.5; %Temperature step
 %initial values
 T(1,1)=TL(1);
@@ -63,7 +66,7 @@ end
 
 
 
-figure
+figure(1)
 subplot(2,1,1)
 
 for i=1:length(TL)
@@ -72,7 +75,7 @@ for i=1:length(TL)
 end
 
 grid
-xlabel('T(Â°C)')
+xlabel('T(°C)')
 ylabel('Solid fraction, f_s');
 
 subplot(2,1,2)
@@ -168,6 +171,8 @@ t_star=1;
 %----------------------Johnson-Mehl-Avrami equation------------------------
 X_JMA=@(Xc,t,n) 1-(1-Xc)^((t/t_star)^n);
 
+clear t, 
+
 Xc=[0.05, 0.15];
 n=[1,2,3];
 dt=0.6;
@@ -186,7 +191,7 @@ for k=1:length(n)
     end
 end
 
-figure
+figure(2)
 str1=['Xc = ', num2str(Xc(1))];
 str2=['Xc = ', num2str(Xc(2))];  
 
@@ -229,7 +234,7 @@ for k=1:length(n)
     end
 end
 
-figure
+figure (3)
 str1=['Xc = ', num2str(Xc(1))];
 str2=['Xc = ', num2str(Xc(2))];  
 
@@ -375,14 +380,11 @@ legend ('T','T_{liquidus}','T_{eutectic}')
             case 3
                 title ('Temperature variation vs time, time exponent 3')
         end
-
-end
-
-
-    case 5
+case 5
         loop=0;
-end
-end
+end     %menyswitch
+end     %restartloop
+
 
 
 
