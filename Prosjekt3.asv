@@ -1,4 +1,4 @@
-%Prosjekt 3 - Eirik Andre NordbÃƒÂ¸, Tobias Mohn Werner
+%Prosjekt 3 - Eirik Andre NordbÃƒÆ’Ã‚Â¸, Tobias Mohn Werner
 %
 
 
@@ -78,8 +78,10 @@ for i=1:length(TL)
     hold on
 end
 
-grid;
+
+grid
 xlabel('T(°C)')
+
 ylabel('Solid fraction, f_s');
 
 subplot(2,1,2)
@@ -270,7 +272,7 @@ a=1;                 %K/s
 Neq=1;               %Neq=Nr/N
 %--------------------------------------------------------------------------
 
-o=menu('Velg deloppgave:', 'a','b', 'g�');
+o=menu('Velg deloppgave:', 'a','b', 'gå');
 %c)
 switch o
     case 1
@@ -375,9 +377,20 @@ while t(j)<t2
 end
 
 
-figure
+figure(4)
 plot(t,T_lev,t,TLplot,'--y',t,TEutPlot, '--y');
 
+xlabel('Time [s]')
+ylabel('Temperature [K]')
+legend ('T','T_{liquidus}','T_{eutectic}')
+        switch n
+            case 1
+                title ('Temperature variation vs time, n=1')
+            case 2
+                title ('Temperature variation vs time, n=2')
+            case 3
+                title ('Temperature variation vs time, n=3')
+        end
 
     case 5
         loop=0;
