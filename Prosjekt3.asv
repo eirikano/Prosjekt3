@@ -1,6 +1,4 @@
-
 %Prosjekt 3 - Eirik Andre NordbÃƒÂ¸, Tobias Mohn Werner
-
 %
 
 
@@ -53,6 +51,9 @@ o=menu('Velg oppgave:', 'Scheil vs Lever rule','X vs t/t*','X vs dX/dt','Heat fl
 %c)
 switch o
     case 1
+        
+clear t
+        
 dT=0.5; %Temperature step
 %initial values
 T(1,1)=TL(1);
@@ -74,7 +75,7 @@ end
 
 
 
-figure
+figure(1)
 subplot(2,1,1)
 
 for i=1:length(TL)
@@ -175,6 +176,8 @@ t_star=1;
 %----------------------Johnson-Mehl-Avrami equation------------------------
 X_JMA=@(Xc,t,n) 1-(1-Xc)^((t/t_star)^n);
 
+clear t, 
+
 Xc=[0.05, 0.15];
 n=[1,2,3];
 dt=0.6;
@@ -193,7 +196,7 @@ for k=1:length(n)
     end
 end
 
-figure
+figure(2)
 str1=['Xc = ', num2str(Xc(1))];
 str2=['Xc = ', num2str(Xc(2))];  
 
@@ -236,7 +239,7 @@ for k=1:length(n)
     end
 end
 
-figure
+figure (3)
 str1=['Xc = ', num2str(Xc(1))];
 str2=['Xc = ', num2str(Xc(2))];  
 
@@ -262,6 +265,7 @@ xlabel('X')
 %%
 %Heat flow model
     case 4
+
     clear n t X TL Xc fs T TLplot TEutPlot fm fs dfs_dt
     %Asking user for parameters------------
     n=1;
@@ -416,6 +420,7 @@ while loop2==1
                     fs_eq=fs_star_eq;
                     f_eut=fe_eq_scheil;
                 end
+
                 %---------------------------------------
             case 4
                 loop2=0;
@@ -424,10 +429,14 @@ while loop2==1
 end %while loop for heat flow model menu
 
 
+end %while loop for heat flow model menu
+
+
     case 5
-       loop=0;
+
+        loop=0;
 end     %menyswitch
-end
+end     %restartloop
 
 
 
