@@ -347,8 +347,7 @@ while T_lev(j)>c.Te %Steady state growth
     T_lev(j+1)=T_lev(j)+a_star_adj*dt*(((c.dHf/(c.pc*dT(k)))*dfm)-1)^(-1);
     t(j+1)=t(j)+dt;
     fm(k+1)=fs_eq(T_lev(j+1),TL);
-    k=k+1;
-
+    
     TLplot(j+1)=TL;
     TEutPlot(j+1)=c.Te;
     k=k+1;

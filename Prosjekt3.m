@@ -214,6 +214,7 @@ xlabel('t/t*')
 %--------------------------------------------------------------------------
 dXdt_eq = @(t_star,Xc,n,X) (n.*(1-X).*log(1-X))./(t_star.*(log(1-X)./log(1-Xc)).^(1/n));
 %--------------------------------------------------------------------------
+clear X 
 
 n=[1,2,3];
 Xc=[0.05, 0.15];
@@ -327,14 +328,12 @@ while X(k)<=0.99 %Transient part and solid growth (nucleation)
     j=j+1;
 end
 a_star=a*(c.ks/c.kl);
-<<<<<<< HEAD
 while T_lev(j) > c.Te %Steady state growth
     dT(k)=TL-T_lev(j);
     dfm=abs(fm(k)-fm(k-1));
     T_lev(j+1)=T_lev(j)+a_star*dt*((c.dHf/(c.pc*dT(k)))*dfm-1)^-1;
     TLplot(j+1)=TL;
     TEutPlot(j+1)=c.Te;
-=======
 T_smooth=T_lev(j)-10;
 grid=50;
 smooth_a=linspace(a,a_star,grid);
@@ -347,7 +346,6 @@ while T_lev(j)>c.Te %Steady state growth
     dT(k)=TL-T_lev(j); 
     dfm_dT=(fm(k)-fm(k-1))/((TL-dT(k))-(TL-dT(k-1)));
     T_lev(j+1)=T_lev(j)+a_star_adj*dt*((c.dHf/(c.pc)*dfm_dT)-1)^(-1);
->>>>>>> master
     t(j+1)=t(j)+dt;
     fm(k+1)=fs_eq(T_lev(j+1),TL);
     
@@ -382,6 +380,10 @@ legend ('T','T_{liquidus}','T_{eutectic}')
             case 3
                 title ('Temperature variation vs time, time exponent 3')
         end
+
+end
+
+
     case 5
         loop=0;
 end
