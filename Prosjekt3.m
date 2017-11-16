@@ -47,7 +47,7 @@ fs_star_eq=@(T,TL) 1-((c.Tf-T)/(c.Tf-TL))^(1/(c.k-1));
 fe_eq_scheil=@(TL) ((c.Tf-c.Te)/(c.Tf-TL))^(1/(c.k-1));
 %-------------------------------------------------------------------
 
-o=menu('Velg oppgave:', 'Scheil vs Lever rule','X vs t/t*','X vs dX/dt','Heat flow model', 'Avslutt program');
+o=menu('Velg oppgave:', 'Scheil vs Equilibrium','X vs t/t*','X vs dX/dt','Heat flow model', 'Avslutt program');
 %c)
 switch o
     case 1
@@ -85,7 +85,7 @@ end
 
 
 grid;
-xlabel('T(Â°C)')
+xlabel('T(°C)')
 
 ylabel('Solid fraction, f_s');
 
@@ -96,9 +96,9 @@ for i=1:length(TL)
 end
 axis([0 c.Tf -inf inf]);
 set(gca,'xdir','reverse');
-title('Solid fraction: Lever rule vs Scheil')
-grid
-xlabel('T(Â°C)')
+title('Solid fraction: Equilibrium vs Scheil')
+grid;
+xlabel('T(°C)')
 ylabel('Change in solid fraction, df/dT');
 
 
@@ -128,7 +128,7 @@ plot(T(:,1)-273,fs_star(:,1),'--b',T(:,2)-273,fs_star(:,2),'--r')
 %Creating the perfect plot------------------------------------------
 axis([0 c.Tf 0 1]);
 set(gca,'xdir','reverse');
-title('Solid fraction: Lever rule vs Scheil')
+title('Solid fraction: Equilibrium vs Scheil')
 fe1_lever=fe_eq(TL(1));
 fe2_lever=fe_eq(TL(2));
 fe1_scheil=fe_eq_scheil(TL(1));
@@ -224,7 +224,7 @@ xlabel('t/t*')
     case 3
 %dX/dt vs X
 %--------------------------------------------------------------------------
-dXdt_eq = @(t_star,Xc,n,X) (n.*(1-X).*log(1-X))./(t_star.*(log(1-X)./log(1-Xc)).^(1/n));
+dXdt_eq = @(t_star,Xc,n,X) -(n.*(1-X).*log(1-X))./(t_star.*(log(1-X)./log(1-Xc)).^(1/n));
 %--------------------------------------------------------------------------
 
 n=[1,2,3];
@@ -328,7 +328,7 @@ while loop2==1
     TLplot(1)=TL;
     TEutPlot(1)=c.Te;
     index=0;
-    while X(k)<=0.999 %Transient part and solid growth (nucleation)
+    while X(k)<=0.99 %Transient part and solid growth (nucleation)
         if T(j)<=T_n
             dT(k)=TL-T(j);
             t_star(k)=t_star_eq(dT(k),C0_r,fm(k),n);
@@ -434,6 +434,7 @@ end %while loop for heat flow model menu
     case 5
 
         loop=0;
+        close all
 end     %menyswitch
 end     %restartloop
 
